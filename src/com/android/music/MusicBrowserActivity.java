@@ -18,15 +18,14 @@ package com.android.music;
 
 import com.android.music.MusicUtils.ServiceToken;
 
-import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentActivity;
 
-public class MusicBrowserActivity extends Activity
+public class MusicBrowserActivity extends FragmentActivity
     implements MusicUtils.Defs {
 
     private ServiceToken mToken;
