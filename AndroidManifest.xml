@@ -63,6 +63,7 @@
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
+        <activity android:name=".MusicBrowser" android:theme="@android:style/Theme.Holo.Light"/>
         <!--
              This is the "current music playing" panel, which has special
              launch behavior.  We clear its task affinity, so it will not

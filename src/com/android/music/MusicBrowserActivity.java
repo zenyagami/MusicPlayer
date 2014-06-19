@@ -19,6 +19,7 @@ package com.android.music;
 import com.android.music.MusicUtils.ServiceToken;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -46,8 +47,8 @@ public class MusicBrowserActivity extends FragmentActivity
                 && activeTab != R.id.playlisttab) {
             activeTab = R.id.artisttab;
         }
-        MusicUtils.activateTab(this, activeTab);
-        
+        //MusicUtils.activateTab(this, activeTab);
+        startActivity(new Intent(getApplicationContext(), MusicBrowser.class));
         String shuf = getIntent().getStringExtra("autoshuffle");
         if ("true".equals(shuf)) {
             mToken = MusicUtils.bindToService(this, autoshuffle);
