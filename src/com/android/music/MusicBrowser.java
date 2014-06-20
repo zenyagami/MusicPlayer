@@ -11,7 +11,8 @@ public class MusicBrowser extends FragmentActivity{
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		FragmentTransaction mFragmentTransaction = getSupportFragmentManager().beginTransaction();
-		Fragment frag= new ArtistAlbumBrowserActivity(); 
+		//Fragment frag= new ArtistAlbumBrowserActivity();
+		Fragment frag= new AlbumBrowserActivity();
 		Bundle bundle = getIntent().getExtras();
 		frag.setArguments(bundle);
 		mFragmentTransaction.replace(android.R.id.content , frag);

@@ -18,7 +18,7 @@ package com.android.music;
 
 import com.android.music.MusicUtils.ServiceToken;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.AsyncQueryHandler;
 import android.content.BroadcastReceiver;
@@ -34,38 +34,34 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.Adapter;
 import android.widget.AlphabetIndexer;
 import android.widget.CursorAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-import java.text.Collator;
 
-public class AlbumBrowserActivity extends ListActivity
+public class AlbumBrowserActivity extends ListFragment
     implements View.OnCreateContextMenuListener, MusicUtils.Defs, ServiceConnection
 {
     private String mCurrentAlbumId;
@@ -83,7 +79,6 @@ public class AlbumBrowserActivity extends ListActivity
     public AlbumBrowserActivity()
     {
     }
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle icicle)
@@ -92,57 +87,67 @@ public class AlbumBrowserActivity extends ListActivity
             mCurrentAlbumId = icicle.getString("selectedalbum");
             mArtistId = icicle.getString("artist");
         } else {
-            mArtistId = getIntent().getStringExtra("artist");
+          //  mArtistId = getIntent().getStringExtra("artist");
         }
         super.onCreate(icicle);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        mToken = MusicUtils.bindToService(this, this);
+        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        mToken = MusicUtils.bindToService(getActivity(), this);
 
         IntentFilter f = new IntentFilter();
         f.addAction(Intent.ACTION_MEDIA_SCANNER_STARTED);
         f.addAction(Intent.ACTION_MEDIA_SCANNER_FINISHED);
         f.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
         f.addDataScheme("file");
-        registerReceiver(mScanListener, f);
+        getActivity().registerReceiver(mScanListener, f);
 
-        setContentView(R.layout.media_picker_activity);
-        MusicUtils.updateButtonBar(this, R.id.albumtab);
-        ListView lv = getListView();
-        lv.setOnCreateContextMenuListener(this);
-        lv.setTextFilterEnabled(true);
-
-        mAdapter = (AlbumListAdapter) getLastNonConfigurationInstance();
-        if (mAdapter == null) {
-            //Log.i("@@@", "starting query");
-            mAdapter = new AlbumListAdapter(
-                    getApplication(),
-                    this,
-                    R.layout.track_list_item,
-                    mAlbumCursor,
-                    new String[] {},
-                    new int[] {});
-            setListAdapter(mAdapter);
-            setTitle(R.string.working_albums);
-            getAlbumCursor(mAdapter.getQueryHandler(), null);
-        } else {
-            mAdapter.setActivity(this);
-            setListAdapter(mAdapter);
-            mAlbumCursor = mAdapter.getCursor();
-            if (mAlbumCursor != null) {
-                init(mAlbumCursor);
-            } else {
-                getAlbumCursor(mAdapter.getQueryHandler(), null);
-            }
-        }
+    }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+      super.onActivityCreated(savedInstanceState);
+      ListView lv = getListView();
+      lv.setOnCreateContextMenuListener(this);
+      lv.setTextFilterEnabled(true);
+     // mAdapter = (AlbumListAdapter) getLastNonConfigurationInstance();
+      mAlbumCursor = getAlbumCursor(null, null);
+      if (mAdapter == null) {
+          //Log.i("@@@", "starting query");
+          mAdapter = new AlbumListAdapter(
+                  getActivity(),
+                  this,
+                  R.layout.track_list_item,
+                  mAlbumCursor,
+                  new String[] {},
+                  new int[] {});
+          lv.setAdapter(mAdapter);
+          //setTitle(R.string.working_albums);
+          //getAlbumCursor(mAdapter.getQueryHandler(), null);
+      } else {
+          mAdapter.setActivity(this);
+          lv.setAdapter(mAdapter);
+          mAlbumCursor = mAdapter.getCursor();
+          if (mAlbumCursor != null) {
+              init(mAlbumCursor);
+          } else {
+              getAlbumCursor(mAdapter.getQueryHandler(), null);
+          }
+      }
     }
 
     @Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+    	  View v =inflater.inflate(R.layout.media_picker_activity,null);
+         //MusicUtils.updateButtonBar(getActivity(), R.id.albumtab);
+		return v;
+	}
+
+	/*@Override
     public Object onRetainNonConfigurationInstance() {
         mAdapterSent = true;
         return mAdapter;
-    }
+    }*/
     
     @Override
     public void onSaveInstanceState(Bundle outcicle) {
@@ -156,14 +161,14 @@ public class AlbumBrowserActivity extends ListActivity
 
     @Override
     public void onDestroy() {
-        ListView lv = getListView();
+        /*ListView lv = getListView();
         if (lv != null) {
             mLastListPosCourse = lv.getFirstVisiblePosition();
             View cv = lv.getChildAt(0);
             if (cv != null) {
                 mLastListPosFine = cv.getTop();
             }
-        }
+        }*/
         MusicUtils.unbindFromService(mToken);
         // If we have an adapter and didn't send it off to another activity yet, we should
         // close its cursor, which we do by assigning a null cursor to it. Doing this
@@ -175,9 +180,9 @@ public class AlbumBrowserActivity extends ListActivity
         // Because we pass the adapter to the next activity, we need to make
         // sure it doesn't keep a reference to this activity. We can do this
         // by clearing its DatasetObservers, which setListAdapter(null) does.
-        setListAdapter(null);
+       // lv.setAdapter(null);
         mAdapter = null;
-        unregisterReceiver(mScanListener);
+        getActivity().unregisterReceiver(mScanListener);
         super.onDestroy();
     }
     
@@ -187,23 +192,23 @@ public class AlbumBrowserActivity extends ListActivity
         IntentFilter f = new IntentFilter();
         f.addAction(MediaPlaybackService.META_CHANGED);
         f.addAction(MediaPlaybackService.QUEUE_CHANGED);
-        registerReceiver(mTrackListListener, f);
+        getActivity().registerReceiver(mTrackListListener, f);
         mTrackListListener.onReceive(null, null);
 
-        MusicUtils.setSpinnerState(this);
+        MusicUtils.setSpinnerState(getActivity());
     }
 
     private BroadcastReceiver mTrackListListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             getListView().invalidateViews();
-            MusicUtils.updateNowPlaying(AlbumBrowserActivity.this);
+            MusicUtils.updateNowPlaying(getActivity());
         }
     };
     private BroadcastReceiver mScanListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            MusicUtils.setSpinnerState(AlbumBrowserActivity.this);
+            MusicUtils.setSpinnerState(getActivity());
             mReScanHandler.sendEmptyMessage(0);
             if (intent.getAction().equals(Intent.ACTION_MEDIA_UNMOUNTED)) {
                 MusicUtils.clearAlbumArtCache();
@@ -222,7 +227,7 @@ public class AlbumBrowserActivity extends ListActivity
 
     @Override
     public void onPause() {
-        unregisterReceiver(mTrackListListener);
+    	getActivity().unregisterReceiver(mTrackListListener);
         mReScanHandler.removeCallbacksAndMessages(null);
         super.onPause();
     }
@@ -235,8 +240,8 @@ public class AlbumBrowserActivity extends ListActivity
         mAdapter.changeCursor(c); // also sets mAlbumCursor
 
         if (mAlbumCursor == null) {
-            MusicUtils.displayDatabaseError(this);
-            closeContextMenu();
+            MusicUtils.displayDatabaseError(getActivity());
+            getActivity().closeContextMenu();
             mReScanHandler.sendEmptyMessageDelayed(0, 1000);
             return;
         }
@@ -247,8 +252,8 @@ public class AlbumBrowserActivity extends ListActivity
             mLastListPosCourse = -1;
         }
 
-        MusicUtils.hideDatabaseError(this);
-        MusicUtils.updateButtonBar(this, R.id.albumtab);
+        MusicUtils.hideDatabaseError(getActivity());
+        //MusicUtils.updateButtonBar(getActivity(), R.id.albumtab);
         setTitle();
     }
 
@@ -263,16 +268,16 @@ public class AlbumBrowserActivity extends ListActivity
         }
 
         if (mArtistId != null && fancyName != null)
-            setTitle(fancyName);
+        	getActivity().setTitle(fancyName);
         else
-            setTitle(R.string.albums_title);
+        	getActivity(). setTitle(R.string.albums_title);
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfoIn) {
         menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
         SubMenu sub = menu.addSubMenu(0, ADD_TO_PLAYLIST, 0, R.string.add_to_playlist);
-        MusicUtils.makePlaylistMenu(this, sub);
+        MusicUtils.makePlaylistMenu(getActivity(), sub);
         menu.add(0, DELETE_ITEM, 0, R.string.delete_item);
 
         AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfoIn;
@@ -300,32 +305,32 @@ public class AlbumBrowserActivity extends ListActivity
         switch (item.getItemId()) {
             case PLAY_SELECTION: {
                 // play the selected album
-                long [] list = MusicUtils.getSongListForAlbum(this, Long.parseLong(mCurrentAlbumId));
-                MusicUtils.playAll(this, list, 0);
+                long [] list = MusicUtils.getSongListForAlbum(getActivity(), Long.parseLong(mCurrentAlbumId));
+                MusicUtils.playAll(getActivity(), list, 0);
                 return true;
             }
 
             case QUEUE: {
-                long [] list = MusicUtils.getSongListForAlbum(this, Long.parseLong(mCurrentAlbumId));
-                MusicUtils.addToCurrentPlaylist(this, list);
+                long [] list = MusicUtils.getSongListForAlbum(getActivity(), Long.parseLong(mCurrentAlbumId));
+                MusicUtils.addToCurrentPlaylist(getActivity(), list);
                 return true;
             }
 
             case NEW_PLAYLIST: {
                 Intent intent = new Intent();
-                intent.setClass(this, CreatePlaylist.class);
+                intent.setClass(getActivity(), CreatePlaylist.class);
                 startActivityForResult(intent, NEW_PLAYLIST);
                 return true;
             }
 
             case PLAYLIST_SELECTED: {
-                long [] list = MusicUtils.getSongListForAlbum(this, Long.parseLong(mCurrentAlbumId));
+                long [] list = MusicUtils.getSongListForAlbum(getActivity(), Long.parseLong(mCurrentAlbumId));
                 long playlist = item.getIntent().getLongExtra("playlist", 0);
-                MusicUtils.addToPlaylist(this, list, playlist);
+                MusicUtils.addToPlaylist(getActivity(), list, playlist);
                 return true;
             }
             case DELETE_ITEM: {
-                long [] list = MusicUtils.getSongListForAlbum(this, Long.parseLong(mCurrentAlbumId));
+                long [] list = MusicUtils.getSongListForAlbum(getActivity(), Long.parseLong(mCurrentAlbumId));
                 String f;
                 if (android.os.Environment.isExternalStorageRemovable()) {
                     f = getString(R.string.delete_album_desc);
@@ -337,7 +342,7 @@ public class AlbumBrowserActivity extends ListActivity
                 b.putString("description", desc);
                 b.putLongArray("items", list);
                 Intent intent = new Intent();
-                intent.setClass(this, DeleteItems.class);
+                intent.setClass(getActivity(), DeleteItems.class);
                 intent.putExtras(b);
                 startActivityForResult(intent, -1);
                 return true;
@@ -379,22 +384,22 @@ public class AlbumBrowserActivity extends ListActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case SCAN_DONE:
-                if (resultCode == RESULT_CANCELED) {
-                    finish();
+                if (resultCode ==Activity.RESULT_CANCELED) {
+                	getActivity().finish();
                 } else {
                     getAlbumCursor(mAdapter.getQueryHandler(), null);
                 }
                 break;
 
             case NEW_PLAYLIST:
-                if (resultCode == RESULT_OK) {
+                if (resultCode == Activity.RESULT_OK) {
                     Uri uri = intent.getData();
                     if (uri != null) {
-                        long [] list = MusicUtils.getSongListForAlbum(this, Long.parseLong(mCurrentAlbumId));
-                        MusicUtils.addToPlaylist(this, list, Long.parseLong(uri.getLastPathSegment()));
+                        long [] list = MusicUtils.getSongListForAlbum(getActivity(), Long.parseLong(mCurrentAlbumId));
+                        MusicUtils.addToPlaylist(getActivity(), list, Long.parseLong(uri.getLastPathSegment()));
                     }
                 }
                 break;
@@ -402,7 +407,7 @@ public class AlbumBrowserActivity extends ListActivity
     }
 
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id)
+	public void onListItemClick(ListView l, View v, int position, long id)
     {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
@@ -412,22 +417,20 @@ public class AlbumBrowserActivity extends ListActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        menu.add(0, PARTY_SHUFFLE, 0, R.string.party_shuffle); // icon will be set in onPrepareOptionsMenu()
+  	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	menu.add(0, PARTY_SHUFFLE, 0, R.string.party_shuffle); // icon will be set in onPrepareOptionsMenu()
         menu.add(0, SHUFFLE_ALL, 0, R.string.shuffle_all).setIcon(R.drawable.ic_menu_shuffle);
-        return true;
-    }
-
+  		super.onCreateOptionsMenu(menu, inflater);
+  		
+  	}
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
         MusicUtils.setPartyShuffleMenuIcon(menu);
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
+        //Intent intent;
         Cursor cursor;
         switch (item.getItemId()) {
             case PARTY_SHUFFLE:
@@ -435,12 +438,12 @@ public class AlbumBrowserActivity extends ListActivity
                 break;
 
             case SHUFFLE_ALL:
-                cursor = MusicUtils.query(this, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                cursor = MusicUtils.query(getActivity(), MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         new String [] { MediaStore.Audio.Media._ID},
                         MediaStore.Audio.Media.IS_MUSIC + "=1", null,
                         MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
                 if (cursor != null) {
-                    MusicUtils.shuffleAll(this, cursor);
+                    MusicUtils.shuffleAll(getActivity(), cursor);
                     cursor.close();
                 }
                 return true;
@@ -468,7 +471,7 @@ public class AlbumBrowserActivity extends ListActivity
                 async.startQuery(0, null, uri,
                         cols, null, null, MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
             } else {
-                ret = MusicUtils.query(this, uri,
+                ret = MusicUtils.query(getActivity(), uri,
                         cols, null, null, MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
             }
         } else {
@@ -481,7 +484,7 @@ public class AlbumBrowserActivity extends ListActivity
                         uri,
                         cols, null, null, MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
             } else {
-                ret = MusicUtils.query(this, uri,
+                ret = MusicUtils.query(getActivity(), uri,
                         cols, null, null, MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
             }
         }
@@ -495,12 +498,13 @@ public class AlbumBrowserActivity extends ListActivity
         private int mAlbumIdx;
         private int mArtistIdx;
         private int mAlbumArtIndex;
-        private final Resources mResources;
-        private final StringBuilder mStringBuilder = new StringBuilder();
+        private Context mContext;
+        //private final Resources mResources;
+       // private final StringBuilder mStringBuilder = new StringBuilder();
         private final String mUnknownAlbum;
         private final String mUnknownArtist;
-        private final String mAlbumSongSeparator;
-        private final Object[] mFormatArgs = new Object[1];
+       // private final String mAlbumSongSeparator;
+        //private final Object[] mFormatArgs = new Object[1];
         private AlphabetIndexer mIndexer;
         private AlbumBrowserActivity mActivity;
         private AsyncQueryHandler mQueryHandler;
@@ -526,16 +530,16 @@ public class AlbumBrowserActivity extends ListActivity
             }
         }
 
-        AlbumListAdapter(Context context, AlbumBrowserActivity currentactivity,
+		AlbumListAdapter(Context context, AlbumBrowserActivity currentactivity,
                 int layout, Cursor cursor, String[] from, int[] to) {
-            super(context, layout, cursor, from, to);
+            super(context, layout, cursor, from, to,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
             mActivity = currentactivity;
             mQueryHandler = new QueryHandler(context.getContentResolver());
-            
+            mContext=context;
             mUnknownAlbum = context.getString(R.string.unknown_album_name);
             mUnknownArtist = context.getString(R.string.unknown_artist_name);
-            mAlbumSongSeparator = context.getString(R.string.albumsongseparator);
+         //   mAlbumSongSeparator = context.getString(R.string.albumsongseparator);
 
             Resources r = context.getResources();
             mNowPlayingOverlay = r.getDrawable(R.drawable.indicator_ic_mp_playing_list);
@@ -546,7 +550,7 @@ public class AlbumBrowserActivity extends ListActivity
             mDefaultAlbumIcon.setFilterBitmap(false);
             mDefaultAlbumIcon.setDither(false);
             getColumnIndices(cursor);
-            mResources = context.getResources();
+           // mResources = context.getResources();
         }
 
         private void getColumnIndices(Cursor cursor) {
@@ -558,7 +562,7 @@ public class AlbumBrowserActivity extends ListActivity
                 if (mIndexer != null) {
                     mIndexer.setCursor(cursor);
                 } else {
-                    mIndexer = new MusicAlphabetIndexer(cursor, mAlbumIdx, mResources.getString(
+                    mIndexer = new MusicAlphabetIndexer(cursor, mAlbumIdx, mContext.getString(
                             R.string.fast_scroll_alphabet));
                 }
             }
@@ -629,7 +633,7 @@ public class AlbumBrowserActivity extends ListActivity
         
         @Override
         public void changeCursor(Cursor cursor) {
-            if (mActivity.isFinishing() && cursor != null) {
+            if (mActivity.isAdded() && !mActivity.isDetached() && cursor != null) {
                 cursor.close();
                 cursor = null;
             }
@@ -671,11 +675,11 @@ public class AlbumBrowserActivity extends ListActivity
     private String mArtistId;
 
     public void onServiceConnected(ComponentName name, IBinder service) {
-        MusicUtils.updateNowPlaying(this);
+        MusicUtils.updateNowPlaying(getActivity());
     }
 
     public void onServiceDisconnected(ComponentName name) {
-        finish();
+    	getActivity().finish();
     }
 }
 

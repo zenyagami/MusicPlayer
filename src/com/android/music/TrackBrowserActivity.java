@@ -159,7 +159,7 @@ public class TrackBrowserActivity extends ListActivity
         };
 
         setContentView(R.layout.media_picker_activity);
-        mUseLastListPos = MusicUtils.updateButtonBar(this, R.id.songtab);
+       // mUseLastListPos = MusicUtils.updateButtonBar(this, R.id.songtab);
         mTrackList = getListView();
         mTrackList.setOnCreateContextMenuListener(this);
         mTrackList.setCacheColorHint(0);
@@ -373,7 +373,7 @@ public class TrackBrowserActivity extends ListActivity
         }
 
         MusicUtils.hideDatabaseError(this);
-        mUseLastListPos = MusicUtils.updateButtonBar(this, R.id.songtab);
+       // mUseLastListPos = MusicUtils.updateButtonBar(this, R.id.songtab);
         setTitle();
 
         // Restore previous position

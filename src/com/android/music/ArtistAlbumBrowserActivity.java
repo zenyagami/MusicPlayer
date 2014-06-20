@@ -562,7 +562,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
         private int mGroupSongIdx;
         private final Context mContext;
         private final Resources mResources;
-        private final String mAlbumSongSeparator;
+        //private final String mAlbumSongSeparator;
         private final String mUnknownAlbum;
         private final String mUnknownArtist;
         private final StringBuilder mBuffer = new StringBuilder();
@@ -610,7 +610,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
             mContext = context;
             getColumnIndices(cursor);
             mResources = context.getResources();
-            mAlbumSongSeparator = context.getString(R.string.albumsongseparator);
+            //mAlbumSongSeparator = context.getString(R.string.albumsongseparator);
             mUnknownAlbum = context.getString(R.string.unknown_album_name);
             mUnknownArtist = context.getString(R.string.unknown_artist_name);
         }
@@ -649,7 +649,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
             vh.line1 = (TextView) v.findViewById(R.id.line1);
             vh.line2 = (TextView) v.findViewById(R.id.line2);
             vh.play_indicator = (ImageView) v.findViewById(R.id.play_indicator);
-            vh.icon = (ImageView) v.findViewById(R.id.icon);
+            vh.icon = iv;//(ImageView) v.findViewById(R.id.icon);
             vh.icon.setPadding(0, 0, 1, 0);
             v.setTag(vh);
             return v;

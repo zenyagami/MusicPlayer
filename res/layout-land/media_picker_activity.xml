@@ -22,8 +22,6 @@
 
     <include layout="@layout/sd_error" />
 
-    <include layout="@layout/buttonbar" />
-
     <com.android.music.TouchInterceptor
         android:id="@android:id/list"
         android:layout_width="match_parent"
