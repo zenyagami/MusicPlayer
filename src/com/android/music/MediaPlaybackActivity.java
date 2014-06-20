@@ -24,14 +24,12 @@ import android.app.KeyguardManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -818,7 +816,7 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        int direction = -1;
+        //int direction = -1;
         int repcnt = event.getRepeatCount();
 
         if((seekmethod==0)?seekMethod1(keyCode):seekMethod2(keyCode))

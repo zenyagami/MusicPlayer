@@ -41,20 +41,20 @@ import android.provider.MediaStore;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -153,7 +153,7 @@ public class PlaylistBrowserActivity extends ListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       ListView lv = getListView();
-      lv.setOnCreateContextMenuListener(this);
+     // lv.setOnCreateContextMenuListener(this);
       lv.setTextFilterEnabled(true);
 
      // mAdapter = (PlaylistListAdapter) getLastNonConfigurationInstance();
@@ -168,7 +168,7 @@ public class PlaylistBrowserActivity extends ListFragment
                   new String[] { MediaStore.Audio.Playlists.NAME},
                   new int[] { android.R.id.text1 });
           setListAdapter(mAdapter);
-          getActivity().setTitle(R.string.working_playlists);
+        //  getActivity().setTitle(R.string.working_playlists);
           //getPlaylistCursor(mAdapter.getQueryHandler(), null);
       } else {
           mAdapter.setActivity(this);
@@ -183,7 +183,7 @@ public class PlaylistBrowserActivity extends ListFragment
           if (mPlaylistCursor != null) {
               init(mPlaylistCursor);
           } else {
-        	  getActivity().setTitle(R.string.working_playlists);
+        	//  getActivity().setTitle(R.string.working_playlists);
               getPlaylistCursor(mAdapter.getQueryHandler(), null);
           }
       }
@@ -295,7 +295,7 @@ public class PlaylistBrowserActivity extends ListFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
+        //Intent intent;
         switch (item.getItemId()) {
             case PARTY_SHUFFLE:
                 MusicUtils.togglePartyShuffle();
@@ -304,12 +304,17 @@ public class PlaylistBrowserActivity extends ListFragment
         return super.onOptionsItemSelected(item);
     }
     
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfoIn) {
-        if (mCreateShortcut) {
+    
+    
+    
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		if (mCreateShortcut) {
             return;
         }
 
-        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfoIn;
+        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;
 
         menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
 
@@ -328,8 +333,10 @@ public class PlaylistBrowserActivity extends ListFragment
         mPlaylistCursor.moveToPosition(mi.position);
         menu.setHeaderTitle(mPlaylistCursor.getString(mPlaylistCursor.getColumnIndexOrThrow(
                 MediaStore.Audio.Playlists.NAME)));
-    }
+	}
 
+
+    //TODO
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo mi = (AdapterContextMenuInfo) item.getMenuInfo();

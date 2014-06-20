@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.Window;
 
 public class MusicBrowserActivity extends FragmentActivity
     implements MusicUtils.Defs {
@@ -55,6 +56,7 @@ public class MusicBrowserActivity extends FragmentActivity
         }
         //MusicUtils.activateTab(this, activeTab);*/
         //startActivity(new Intent(getApplicationContext(), MusicBrowser.class));
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         String shuf = getIntent().getStringExtra("autoshuffle");
         if ("true".equals(shuf)) {
@@ -104,6 +106,29 @@ public class MusicBrowserActivity extends FragmentActivity
         }
 
         @Override
+		public CharSequence getPageTitle(int position) {
+        	int id=0;
+			switch (position) {
+			case 0:
+				id = R.string.artists_title;
+				break;
+			case 1:
+				id = R.string.albums_title;
+				break;
+			case 2: 
+				id=R.string.tracks_title;
+				break;
+			case 3:
+				id = R.string.playlists_title;
+				break;
+			default:
+				id=R.string.tracks_title;
+				break;
+			}
+			return getString(id);
+		}
+
+		@Override
         public Fragment getItem(int position) {
         	switch (position) {
 			case 0:

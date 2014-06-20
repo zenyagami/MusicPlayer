@@ -133,13 +133,13 @@ public class ArtistAlbumBrowserActivity extends Fragment
          lv.setTextFilterEnabled(true);
          lv.setOnChildClickListener(this);
         // mAdapter = (ArtistAlbumListAdapter) getLastNonConfigurationInstance();
-         Cursor cur =getArtistCursor(null, null);
+         mArtistCursor =getArtistCursor(null, null);
          if (mAdapter == null) {
              //Log.i("@@@", "starting query");
              mAdapter = new ArtistAlbumListAdapter(
                      getActivity(),
                      this,
-                     cur, // cursor
+                     mArtistCursor, // cursor
                      R.layout.track_list_item_group,
                      new String[] {},
                      new int[] {},
@@ -147,7 +147,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
                      new String[] {},
                      new int[] {});
              lv.setAdapter(mAdapter);
-             getActivity().setTitle(R.string.working_artists);
+          //   getActivity().setTitle(R.string.working_artists);
              //getArtistCursor(mAdapter.getQueryHandler(), null);
          } else {
              mAdapter.setActivity(this);

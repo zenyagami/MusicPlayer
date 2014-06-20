@@ -244,7 +244,7 @@ public class TrackBrowserActivity extends ListFragment
                     mPlaylist != null &&
                     !(mPlaylist.equals("podcasts") || mPlaylist.equals("recentlyadded")));
             setListAdapter(mAdapter);
-            getActivity().setTitle(R.string.working_songs);
+            //getActivity().setTitle(R.string.working_songs);
             getTrackCursor(mAdapter.getQueryHandler(), null, true);
         } else {
             mTrackCursor = mAdapter.getCursor();
@@ -257,7 +257,7 @@ public class TrackBrowserActivity extends ListFragment
             if (mTrackCursor != null) {
                 init(mTrackCursor, false);
             } else {
-            	getActivity().setTitle(R.string.working_songs);
+            	//getActivity().setTitle(R.string.working_songs);
                 getTrackCursor(mAdapter.getQueryHandler(), null, true);
             }
         }
