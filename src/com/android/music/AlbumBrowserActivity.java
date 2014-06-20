@@ -412,10 +412,18 @@ public class AlbumBrowserActivity extends ListFragment
     @Override
 	public void onListItemClick(ListView l, View v, int position, long id)
     {
-        Intent intent = new Intent(Intent.ACTION_PICK);
+    	
+        /*Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
         intent.putExtra("album", Long.valueOf(id).toString());
         intent.putExtra("artist", mArtistId);
+        startActivity(intent);*/
+    	Intent intent = new Intent(getActivity(),MusicBrowser.class);
+    	Bundle b = new Bundle();
+        b.putString("album", Long.valueOf(id).toString());
+        b.putString("artist", mArtistId);
+        b.putString("fragment", TrackBrowserActivity.class.getName());
+        intent.putExtras(b);
         startActivity(intent);
     }
 

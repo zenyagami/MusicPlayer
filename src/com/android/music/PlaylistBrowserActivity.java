@@ -199,14 +199,14 @@ public class PlaylistBrowserActivity extends ListFragment
     
     @Override
     public void onDestroy() {
-        ListView lv = getListView();
+       /* ListView lv = getListView();
         if (lv != null) {
             mLastListPosCourse = lv.getFirstVisiblePosition();
             View cv = lv.getChildAt(0);
             if (cv != null) {
                 mLastListPosFine = cv.getTop();
             }
-        }
+        }*/
         MusicUtils.unbindFromService(mToken);
         // If we have an adapter and didn't send it off to another activity yet, we should
         // close its cursor, which we do by assigning a null cursor to it. Doing this

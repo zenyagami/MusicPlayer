@@ -271,7 +271,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
 
         mCurrentAlbumId = Long.valueOf(id).toString();
         
-        Intent intent = new Intent(Intent.ACTION_PICK);
+      /*  Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
         intent.putExtra("album", mCurrentAlbumId);
         Cursor c = (Cursor) lv.getExpandableListAdapter().getChild(groupPosition, childPosition);
@@ -282,7 +282,22 @@ public class ArtistAlbumBrowserActivity extends Fragment
             mCurrentArtistId = mArtistCursor.getString(mArtistCursor.getColumnIndex(MediaStore.Audio.Artists._ID));
             intent.putExtra("artist", mCurrentArtistId);
         }
-        startActivity(intent);
+        startActivity(intent);*/
+        
+        Intent i  = new Intent(getActivity(), MusicBrowser.class);
+        Bundle b = new Bundle();
+        b.putString("album", mCurrentAlbumId);
+        Cursor c = (Cursor) lv.getExpandableListAdapter().getChild(groupPosition, childPosition);
+        String album = c.getString(c.getColumnIndex(MediaStore.Audio.Albums.ALBUM));
+        if (album == null || album.equals(MediaStore.UNKNOWN_STRING)) {
+            // unknown album, so we should include the artist ID to limit the songs to songs only by that artist 
+            mArtistCursor.moveToPosition(groupPosition);
+            mCurrentArtistId = mArtistCursor.getString(mArtistCursor.getColumnIndex(MediaStore.Audio.Artists._ID));
+            b.putString("artist", mCurrentArtistId);
+        }
+        b.putString("fragment", TrackBrowserActivity.class.getName());
+        i.putExtras(b);
+        startActivity(i);
         return true;
     }
     

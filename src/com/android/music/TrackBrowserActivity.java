@@ -134,12 +134,17 @@ public class TrackBrowserActivity extends ListFragment
         		if(ext.containsKey("playlist"))
         		{
         			mPlaylist = ext.getString("playlist");
+        		}if(ext.containsKey("album"))
+        		{
+        			mAlbumId = ext.getString("album");
+        		}if(ext.containsKey("artist"))
+        		{
+        			mArtistId =  ext.getString("artist");
+        		}if(ext.containsKey("genre"))
+        		{
+        			mGenre =ext.getString("genre");
         		}
-        		
         	}
-        	
-        	
-        	
             /*mAlbumId = intent.getStringExtra("album");
             // If we have an album, show everything on the album, not just stuff
             // by a particular artist.
