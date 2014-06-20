@@ -17,7 +17,9 @@
 package com.android.music;
 
 import com.android.music.MusicUtils.ServiceToken;
+import com.android.music.utils.Utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.AsyncQueryHandler;
@@ -506,7 +508,7 @@ public class AlbumBrowserActivity extends ListFragment
        // private final String mAlbumSongSeparator;
         //private final Object[] mFormatArgs = new Object[1];
         private AlphabetIndexer mIndexer;
-        private AlbumBrowserActivity mActivity;
+        private static AlbumBrowserActivity mActivity;
         private AsyncQueryHandler mQueryHandler;
         private String mConstraint = null;
         private boolean mConstraintIsValid = false;
@@ -518,7 +520,7 @@ public class AlbumBrowserActivity extends ListFragment
             ImageView icon;
         }
 
-        class QueryHandler extends AsyncQueryHandler {
+        static class QueryHandler extends AsyncQueryHandler {
             QueryHandler(ContentResolver res) {
                 super(res);
             }
@@ -576,7 +578,9 @@ public class AlbumBrowserActivity extends ListFragment
             return mQueryHandler;
         }
 
-        @Override
+        @SuppressWarnings("deprecation")
+		@SuppressLint("NewApi")
+		@Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
            View v = super.newView(context, cursor, parent);
            ViewHolder vh = new ViewHolder();
@@ -584,7 +588,14 @@ public class AlbumBrowserActivity extends ListFragment
            vh.line2 = (TextView) v.findViewById(R.id.line2);
            vh.play_indicator = (ImageView) v.findViewById(R.id.play_indicator);
            vh.icon = (ImageView) v.findViewById(R.id.icon);
-           vh.icon.setBackgroundDrawable(mDefaultAlbumIcon);
+           if(Utils.isJB())
+           {vh.icon.setBackground(mDefaultAlbumIcon);
+        	   
+           }else
+           {
+        	   vh.icon.setBackgroundDrawable(mDefaultAlbumIcon);
+           }
+           
            vh.icon.setPadding(0, 0, 1, 0);
            v.setTag(vh);
            return v;

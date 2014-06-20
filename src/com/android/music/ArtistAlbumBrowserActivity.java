@@ -569,7 +569,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
         private final Object[] mFormatArgs = new Object[1];
         private final Object[] mFormatArgs3 = new Object[3];
         private MusicAlphabetIndexer mIndexer;
-        private ArtistAlbumBrowserActivity mActivity;
+        private static ArtistAlbumBrowserActivity mActivity;
         private AsyncQueryHandler mQueryHandler;
         private String mConstraint = null;
         private boolean mConstraintIsValid = false;
@@ -581,7 +581,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
             ImageView icon;
         }
 
-        class QueryHandler extends AsyncQueryHandler {
+       static class QueryHandler extends AsyncQueryHandler {
             QueryHandler(ContentResolver res) {
                 super(res);
             }
