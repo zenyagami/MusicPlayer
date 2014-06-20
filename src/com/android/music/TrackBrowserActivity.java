@@ -110,6 +110,7 @@ public class TrackBrowserActivity extends ListFragment
     @Override
     public void onCreate(Bundle icicle)
     {
+    	setHasOptionsMenu(true);
         super.onCreate(icicle);
         /*requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         Intent intent = getIntent();
@@ -126,15 +127,27 @@ public class TrackBrowserActivity extends ListFragment
             mPlaylist = icicle.getString("playlist");
             mGenre = icicle.getString("genre");
             mEditMode = icicle.getBoolean("editmode", false);
-        } /*else {
-            mAlbumId = intent.getStringExtra("album");
+        } else {
+        	Bundle ext = getArguments();
+        	if(ext!=null)
+        	{
+        		if(ext.containsKey("playlist"))
+        		{
+        			mPlaylist = ext.getString("playlist");
+        		}
+        		
+        	}
+        	
+        	
+        	
+            /*mAlbumId = intent.getStringExtra("album");
             // If we have an album, show everything on the album, not just stuff
             // by a particular artist.
             mArtistId = intent.getStringExtra("artist");
             mPlaylist = intent.getStringExtra("playlist");
             mGenre = intent.getStringExtra("genre");
-            mEditMode = intent.getAction().equals(Intent.ACTION_EDIT);
-        }*/
+            mEditMode = intent.getAction().equals(Intent.ACTION_EDIT);*/
+        }
 
         mCursorCols = new String[] {
                 MediaStore.Audio.Media._ID,

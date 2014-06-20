@@ -85,6 +85,7 @@ public class AlbumBrowserActivity extends ListFragment
     @Override
     public void onCreate(Bundle icicle)
     {
+    	setHasOptionsMenu(true);
         if (icicle != null) {
             mCurrentAlbumId = icicle.getString("selectedalbum");
             mArtistId = icicle.getString("artist");

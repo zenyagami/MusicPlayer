@@ -18,7 +18,7 @@ package com.android.music;
 
 import com.android.music.MusicUtils.ServiceToken;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.AsyncQueryHandler;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -32,21 +32,23 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.sqlite.SQLiteException;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -57,7 +59,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import java.text.Collator;
 import java.util.ArrayList;
 
-public class PlaylistBrowserActivity extends ListActivity
+public class PlaylistBrowserActivity extends ListFragment
     implements View.OnCreateContextMenuListener, MusicUtils.Defs
 {
     private static final String TAG = "PlaylistBrowserActivity";
@@ -85,21 +87,21 @@ public class PlaylistBrowserActivity extends ListActivity
     public void onCreate(Bundle icicle)
     {
         super.onCreate(icicle);
-
-        final Intent intent = getIntent();
+        setHasOptionsMenu(true);
+      /*  final Intent intent = getIntent();
         final String action = intent.getAction();
         if (Intent.ACTION_CREATE_SHORTCUT.equals(action)) {
             mCreateShortcut = true;
-        }
+        }*/
 
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        mToken = MusicUtils.bindToService(this, new ServiceConnection() {
+        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        mToken = MusicUtils.bindToService(getActivity(), new ServiceConnection() {
             public void onServiceConnected(ComponentName classname, IBinder obj) {
-                if (Intent.ACTION_VIEW.equals(action)) {
-                    Bundle b = intent.getExtras();
-                    if (b == null) {
+                if (Intent.ACTION_VIEW.equals("action")) {
+                    Bundle b = null;//intent.getExtras();
+                    /*if (b == null) {
                         Log.w(TAG, "Unexpected:getExtras() returns null.");
                     } else {
                         try {
@@ -109,21 +111,21 @@ public class PlaylistBrowserActivity extends ListActivity
                             } else if (id == PODCASTS_PLAYLIST) {
                                 playPodcasts();
                             } else if (id == ALL_SONGS_PLAYLIST) {
-                                long[] list = MusicUtils.getAllSongs(PlaylistBrowserActivity.this);
+                                long[] list = MusicUtils.getAllSongs(getActivity());
                                 if (list != null) {
-                                    MusicUtils.playAll(PlaylistBrowserActivity.this, list, 0);
+                                    MusicUtils.playAll(getActivity(), list, 0);
                                 }
                             } else {
-                                MusicUtils.playPlaylist(PlaylistBrowserActivity.this, id);
+                                MusicUtils.playPlaylist(getActivity(), id);
                             }
                         } catch (NumberFormatException e) {
                             Log.w(TAG, "Playlist id missing or broken");
                         }
-                    }
-                    finish();
+                    }*/
+                    getActivity(). finish();
                     return;
                 }
-                MusicUtils.updateNowPlaying(PlaylistBrowserActivity.this);
+                MusicUtils.updateNowPlaying(getActivity());
             }
 
             public void onServiceDisconnected(ComponentName classname) {
@@ -135,52 +137,65 @@ public class PlaylistBrowserActivity extends ListActivity
         f.addAction(Intent.ACTION_MEDIA_SCANNER_FINISHED);
         f.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
         f.addDataScheme("file");
-        registerReceiver(mScanListener, f);
-
-        setContentView(R.layout.media_picker_activity);
-        MusicUtils.updateButtonBar(this, R.id.playlisttab);
-        ListView lv = getListView();
-        lv.setOnCreateContextMenuListener(this);
-        lv.setTextFilterEnabled(true);
-
-        mAdapter = (PlaylistListAdapter) getLastNonConfigurationInstance();
-        if (mAdapter == null) {
-            //Log.i("@@@", "starting query");
-            mAdapter = new PlaylistListAdapter(
-                    getApplication(),
-                    this,
-                    R.layout.track_list_item,
-                    mPlaylistCursor,
-                    new String[] { MediaStore.Audio.Playlists.NAME},
-                    new int[] { android.R.id.text1 });
-            setListAdapter(mAdapter);
-            setTitle(R.string.working_playlists);
-            getPlaylistCursor(mAdapter.getQueryHandler(), null);
-        } else {
-            mAdapter.setActivity(this);
-            setListAdapter(mAdapter);
-            mPlaylistCursor = mAdapter.getCursor();
-            // If mPlaylistCursor is null, this can be because it doesn't have
-            // a cursor yet (because the initial query that sets its cursor
-            // is still in progress), or because the query failed.
-            // In order to not flash the error dialog at the user for the
-            // first case, simply retry the query when the cursor is null.
-            // Worst case, we end up doing the same query twice.
-            if (mPlaylistCursor != null) {
-                init(mPlaylistCursor);
-            } else {
-                setTitle(R.string.working_playlists);
-                getPlaylistCursor(mAdapter.getQueryHandler(), null);
-            }
-        }
+        getActivity().registerReceiver(mScanListener, f);
+     //   MusicUtils.updateButtonBar(this, R.id.playlisttab);
+       
     }
     
     @Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+    	View v =inflater.inflate(R.layout.media_picker_activity, null);
+		return v;
+	}
+
+	@Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+      super.onActivityCreated(savedInstanceState);
+      ListView lv = getListView();
+      lv.setOnCreateContextMenuListener(this);
+      lv.setTextFilterEnabled(true);
+
+     // mAdapter = (PlaylistListAdapter) getLastNonConfigurationInstance();
+      mPlaylistCursor =getPlaylistCursor(null, null);
+      if (mAdapter == null) {
+          //Log.i("@@@", "starting query");
+          mAdapter = new PlaylistListAdapter(
+                  getActivity().getApplication(),
+                  this,
+                  R.layout.track_list_item,
+                  mPlaylistCursor,
+                  new String[] { MediaStore.Audio.Playlists.NAME},
+                  new int[] { android.R.id.text1 });
+          setListAdapter(mAdapter);
+          getActivity().setTitle(R.string.working_playlists);
+          //getPlaylistCursor(mAdapter.getQueryHandler(), null);
+      } else {
+          mAdapter.setActivity(this);
+          setListAdapter(mAdapter);
+          mPlaylistCursor = mAdapter.getCursor();
+          // If mPlaylistCursor is null, this can be because it doesn't have
+          // a cursor yet (because the initial query that sets its cursor
+          // is still in progress), or because the query failed.
+          // In order to not flash the error dialog at the user for the
+          // first case, simply retry the query when the cursor is null.
+          // Worst case, we end up doing the same query twice.
+          if (mPlaylistCursor != null) {
+              init(mPlaylistCursor);
+          } else {
+        	  getActivity().setTitle(R.string.working_playlists);
+              getPlaylistCursor(mAdapter.getQueryHandler(), null);
+          }
+      }
+	
+    }
+    
+   /* @Override
     public Object onRetainNonConfigurationInstance() {
         PlaylistListAdapter a = mAdapter;
         mAdapterSent = true;
         return a;
-    }
+    }*/
     
     @Override
     public void onDestroy() {
@@ -205,7 +220,7 @@ public class PlaylistBrowserActivity extends ListActivity
         // by clearing its DatasetObservers, which setListAdapter(null) does.
         setListAdapter(null);
         mAdapter = null;
-        unregisterReceiver(mScanListener);
+        getActivity().unregisterReceiver(mScanListener);
         super.onDestroy();
     }
     
@@ -213,8 +228,8 @@ public class PlaylistBrowserActivity extends ListActivity
     public void onResume() {
         super.onResume();
 
-        MusicUtils.setSpinnerState(this);
-        MusicUtils.updateNowPlaying(PlaylistBrowserActivity.this);
+        MusicUtils.setSpinnerState(getActivity());
+        MusicUtils.updateNowPlaying(getActivity());
     }
     @Override
     public void onPause() {
@@ -224,7 +239,7 @@ public class PlaylistBrowserActivity extends ListActivity
     private BroadcastReceiver mScanListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            MusicUtils.setSpinnerState(PlaylistBrowserActivity.this);
+            MusicUtils.setSpinnerState(getActivity());
             mReScanHandler.sendEmptyMessage(0);
         }
     };
@@ -245,8 +260,8 @@ public class PlaylistBrowserActivity extends ListActivity
         mAdapter.changeCursor(cursor);
 
         if (mPlaylistCursor == null) {
-            MusicUtils.displayDatabaseError(this);
-            closeContextMenu();
+            MusicUtils.displayDatabaseError(getActivity());
+            getActivity().closeContextMenu();
             mReScanHandler.sendEmptyMessageDelayed(0, 1000);
             return;
         }
@@ -256,27 +271,26 @@ public class PlaylistBrowserActivity extends ListActivity
             getListView().setSelectionFromTop(mLastListPosCourse, mLastListPosFine);
             mLastListPosCourse = -1;
         }
-        MusicUtils.hideDatabaseError(this);
-        MusicUtils.updateButtonBar(this, R.id.playlisttab);
+        MusicUtils.hideDatabaseError(getActivity());
+        MusicUtils.updateButtonBar(getActivity(), R.id.playlisttab);
         setTitle();
     }
 
     private void setTitle() {
-        setTitle(R.string.playlists_title);
+    	getActivity().setTitle(R.string.playlists_title);
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+  	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (!mCreateShortcut) {
             menu.add(0, PARTY_SHUFFLE, 0, R.string.party_shuffle); // icon will be set in onPrepareOptionsMenu()
         }
-        return super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu,inflater);
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
         MusicUtils.setPartyShuffleMenuIcon(menu);
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -326,22 +340,22 @@ public class PlaylistBrowserActivity extends ListActivity
                 } else if (mi.id == PODCASTS_PLAYLIST) {
                     playPodcasts();
                 } else {
-                    MusicUtils.playPlaylist(this, mi.id);
+                    MusicUtils.playPlaylist(getActivity(), mi.id);
                 }
                 break;
             case DELETE_PLAYLIST:
                 Uri uri = ContentUris.withAppendedId(
                         MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, mi.id);
-                getContentResolver().delete(uri, null, null);
-                Toast.makeText(this, R.string.playlist_deleted_message, Toast.LENGTH_SHORT).show();
+                getActivity().getContentResolver().delete(uri, null, null);
+                Toast.makeText(getActivity(), R.string.playlist_deleted_message, Toast.LENGTH_SHORT).show();
                 if (mPlaylistCursor.getCount() == 0) {
-                    setTitle(R.string.no_playlists_title);
+                	getActivity(). setTitle(R.string.no_playlists_title);
                 }
                 break;
             case EDIT_PLAYLIST:
                 if (mi.id == RECENTLY_ADDED_PLAYLIST) {
                     Intent intent = new Intent();
-                    intent.setClass(this, WeekSelector.class);
+                    intent.setClass(getActivity(), WeekSelector.class);
                     startActivityForResult(intent, CHANGE_WEEKS);
                     return true;
                 } else {
@@ -350,7 +364,7 @@ public class PlaylistBrowserActivity extends ListActivity
                 break;
             case RENAME_PLAYLIST:
                 Intent intent = new Intent();
-                intent.setClass(this, RenamePlaylist.class);
+                intent.setClass(getActivity(), RenamePlaylist.class);
                 intent.putExtra("rename", mi.id);
                 startActivityForResult(intent, RENAME_PLAYLIST);
                 break;
@@ -359,11 +373,11 @@ public class PlaylistBrowserActivity extends ListActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case SCAN_DONE:
-                if (resultCode == RESULT_CANCELED) {
-                    finish();
+                if (resultCode == Activity.RESULT_CANCELED) {
+                	getActivity().finish();
                 } else if (mAdapter != null) {
                     getPlaylistCursor(mAdapter.getQueryHandler(), null);
                 }
@@ -372,48 +386,41 @@ public class PlaylistBrowserActivity extends ListActivity
     }
 
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id)
+	public void onListItemClick(ListView l, View v, int position, long id)
     {
         if (mCreateShortcut) {
             final Intent shortcut = new Intent();
             shortcut.setAction(Intent.ACTION_VIEW);
             shortcut.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/playlist");
             shortcut.putExtra("playlist", String.valueOf(id));
-
             final Intent intent = new Intent();
             intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcut);
             intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, ((TextView) v.findViewById(R.id.line1)).getText());
             intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(
-                    this, R.drawable.ic_launcher_shortcut_music_playlist));
+            		getActivity(), R.drawable.ic_launcher_shortcut_music_playlist));
 
-            setResult(RESULT_OK, intent);
-            finish();
+            getActivity().setResult(Activity.RESULT_OK, intent);
+            getActivity().finish();
             return;
         }
-        if (id == RECENTLY_ADDED_PLAYLIST) {
-            Intent intent = new Intent(Intent.ACTION_PICK);
+            /*Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
-            intent.putExtra("playlist", "recentlyadded");
+            intent.putExtra("playlist", "recentlyadded");*/
+        	Intent intent = new Intent(getActivity(),MusicBrowser.class);
+            Bundle b = new Bundle();
+            b.putString("playlist", id==RECENTLY_ADDED_PLAYLIST? "recentlyadded": Long.valueOf(id).toString());
+            b.putString("fragment", TrackBrowserActivity.class.getName());
+            intent.putExtras(b);
             startActivity(intent);
-        } else if (id == PODCASTS_PLAYLIST) {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
-            intent.putExtra("playlist", "podcasts");
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_EDIT);
-            intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
-            intent.putExtra("playlist", Long.valueOf(id).toString());
-            startActivity(intent);
-        }
+        
     }
 
     private void playRecentlyAdded() {
         // do a query for all songs added in the last X weeks
-        int X = MusicUtils.getIntPref(this, "numweeks", 2) * (3600 * 24 * 7);
+        int X = MusicUtils.getIntPref(getActivity(), "numweeks", 2) * (3600 * 24 * 7);
         final String[] ccols = new String[] { MediaStore.Audio.Media._ID};
         String where = MediaStore.MediaColumns.DATE_ADDED + ">" + (System.currentTimeMillis() / 1000 - X);
-        Cursor cursor = MusicUtils.query(this, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        Cursor cursor = MusicUtils.query(getActivity(), MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 ccols, where, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
         
         if (cursor == null) {
@@ -427,7 +434,7 @@ public class PlaylistBrowserActivity extends ListActivity
                 cursor.moveToNext();
                 list[i] = cursor.getLong(0);
             }
-            MusicUtils.playAll(this, list, 0);
+            MusicUtils.playAll(getActivity(), list, 0);
         } catch (SQLiteException ex) {
         } finally {
             cursor.close();
@@ -437,7 +444,7 @@ public class PlaylistBrowserActivity extends ListActivity
     private void playPodcasts() {
         // do a query for all files that are podcasts
         final String[] ccols = new String[] { MediaStore.Audio.Media._ID};
-        Cursor cursor = MusicUtils.query(this, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        Cursor cursor = MusicUtils.query(getActivity(), MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 ccols, MediaStore.Audio.Media.IS_PODCAST + "=1",
                 null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
         
@@ -452,7 +459,7 @@ public class PlaylistBrowserActivity extends ListActivity
                 cursor.moveToNext();
                 list[i] = cursor.getLong(0);
             }
-            MusicUtils.playAll(this, list, 0);
+            MusicUtils.playAll(getActivity(), list, 0);
         } catch (SQLiteException ex) {
         } finally {
             cursor.close();
@@ -495,7 +502,7 @@ public class PlaylistBrowserActivity extends ListActivity
             return null;
         }
         Cursor c = null;
-        c = MusicUtils.query(this, MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+        c = MusicUtils.query(getActivity(), MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
                 mCols, whereclause, keywords, MediaStore.Audio.Playlists.NAME);
         
         return mergedCursor(c);
@@ -523,7 +530,7 @@ public class PlaylistBrowserActivity extends ListActivity
         autoplaylistscursor.addRow(recent);
         
         // check if there are any podcasts
-        Cursor counter = MusicUtils.query(this, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        Cursor counter = MusicUtils.query(getActivity(), MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 new String[] {"count(*)"}, "is_podcast=1", null, null);
         if (counter != null) {
             counter.moveToFirst();
@@ -566,7 +573,7 @@ public class PlaylistBrowserActivity extends ListActivity
 
         PlaylistListAdapter(Context context, PlaylistBrowserActivity currentactivity,
                 int layout, Cursor cursor, String[] from, int[] to) {
-            super(context, layout, cursor, from, to);
+            super(context, layout, cursor, from, to,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
             mActivity = currentactivity;
             getColumnIndices(cursor);
             mQueryHandler = new QueryHandler(context.getContentResolver());
@@ -614,7 +621,7 @@ public class PlaylistBrowserActivity extends ListActivity
 
         @Override
         public void changeCursor(Cursor cursor) {
-            if (mActivity.isFinishing() && cursor != null) {
+            if (mActivity.isDetached() || !mActivity.isAdded()  && cursor != null) {
                 cursor.close();
                 cursor = null;
             }

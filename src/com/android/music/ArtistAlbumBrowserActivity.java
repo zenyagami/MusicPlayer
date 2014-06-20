@@ -85,6 +85,7 @@ public class ArtistAlbumBrowserActivity extends Fragment
         super.onCreate(icicle);
         //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         //setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setHasOptionsMenu(true);
         setRetainInstance(true);
         if (icicle != null) {
             mCurrentAlbumId = icicle.getString("selectedalbum");

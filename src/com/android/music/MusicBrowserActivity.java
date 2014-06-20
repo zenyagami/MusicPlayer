@@ -19,18 +19,24 @@ package com.android.music;
 import com.android.music.MusicUtils.ServiceToken;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 
 public class MusicBrowserActivity extends FragmentActivity
     implements MusicUtils.Defs {
 
     private ServiceToken mToken;
-
+    private ViewPager mPager;
+    private PagerAdapter mPagerAdapter;
     public MusicBrowserActivity() {
     }
 
@@ -40,19 +46,27 @@ public class MusicBrowserActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        int activeTab = MusicUtils.getIntPref(this, "activetab", R.id.artisttab);
+        /*int activeTab = MusicUtils.getIntPref(this, "activetab", R.id.artisttab);
         if (activeTab != R.id.artisttab
                 && activeTab != R.id.albumtab
                 && activeTab != R.id.songtab
                 && activeTab != R.id.playlisttab) {
             activeTab = R.id.artisttab;
         }
-        //MusicUtils.activateTab(this, activeTab);
-        startActivity(new Intent(getApplicationContext(), MusicBrowser.class));
+        //MusicUtils.activateTab(this, activeTab);*/
+        //startActivity(new Intent(getApplicationContext(), MusicBrowser.class));
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         String shuf = getIntent().getStringExtra("autoshuffle");
         if ("true".equals(shuf)) {
             mToken = MusicUtils.bindToService(this, autoshuffle);
         }
+        setContentView(R.layout.main_activity_pager);
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setOffscreenPageLimit(3);
+        mPager.setAdapter(mPagerAdapter);
+        
+        
     }
 
     @Override
@@ -82,6 +96,35 @@ public class MusicBrowserActivity extends FragmentActivity
         public void onServiceDisconnected(ComponentName classname) {
         }
     };
+    
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+    	private static final int PAGES =4;
+        public ScreenSlidePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+        	switch (position) {
+			case 0:
+				return new ArtistAlbumBrowserActivity();
+			case 1:
+				return new AlbumBrowserActivity();
+			case 2:
+				return new TrackBrowserActivity();
+			case 3:
+				return new PlaylistBrowserActivity();
+			default:
+				break;
+			}
+        	return new TrackBrowserActivity();
+        }
+
+        @Override
+        public int getCount() {
+            return PAGES;
+        }
+    }
 
 }
 
