@@ -272,7 +272,7 @@ public class PlaylistBrowserActivity extends ListFragment
             mLastListPosCourse = -1;
         }
         MusicUtils.hideDatabaseError(getActivity());
-        MusicUtils.updateButtonBar(getActivity(), R.id.playlisttab);
+     //   MusicUtils.updateButtonBar(getActivity(), R.id.playlisttab);
         setTitle();
     }
 

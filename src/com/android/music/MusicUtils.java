@@ -1141,7 +1141,7 @@ public class MusicUtils {
     
     static int sActiveTabIndex = -1;
     
-    static boolean updateButtonBar(Activity a, int highlight) {
+   /* static boolean updateButtonBar(Activity a, int highlight) {
         final TabWidget ll = (TabWidget) a.findViewById(R.id.buttonbar);
         boolean withtabs = false;
         Intent intent = a.getIntent();
@@ -1185,9 +1185,9 @@ public class MusicUtils {
                 }});
         }
         return withtabs;
-    }
+    }*/
 
-    static void processTabClick(Activity a, View v, int current) {
+    /*static void processTabClick(Activity a, View v, int current) {
         int id = v.getId();
         if (id == current) {
             return;
@@ -1200,9 +1200,9 @@ public class MusicUtils {
             ll.setCurrentTab((Integer) v.getTag());
             setIntPref(a, "activetab", id);
         }
-    }
+    }*/
     
-    static void activateTab(Activity a, int id) {
+   /* static void activateTab(Activity a, int id) {
         Intent intent = new Intent(Intent.ACTION_PICK);
         switch (id) {
             case R.id.artisttab:
@@ -1229,7 +1229,7 @@ public class MusicUtils {
         a.startActivity(intent);
         a.finish();
         a.overridePendingTransition(0, 0);
-    }
+    }*/
     
     static void updateNowPlaying(Activity a) {
         View nowPlayingView = a.findViewById(R.id.nowplaying);

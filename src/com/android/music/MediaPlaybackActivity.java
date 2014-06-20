@@ -393,11 +393,19 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
     
     private View.OnClickListener mQueueListener = new View.OnClickListener() {
         public void onClick(View v) {
-            startActivity(
+        	Intent i = new Intent(getApplicationContext(), MusicBrowser.class);
+        	Bundle b = new Bundle();
+        	b.putString("playlist", "nowplaying");
+        	b.putBoolean(Intent.ACTION_EDIT, true);
+        	b.putString("fragment", TrackBrowserActivity.class.getName());
+        	i.putExtras(b);
+        	startActivity(i);
+        	
+            /*startActivity(
                     new Intent(Intent.ACTION_EDIT)
                     .setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track")
                     .putExtra("playlist", "nowplaying")
-            );
+            );*/
         }
     };
     

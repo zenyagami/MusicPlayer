@@ -144,6 +144,10 @@ public class TrackBrowserActivity extends ListFragment
         		{
         			mGenre =ext.getString("genre");
         		}
+        		if(ext.containsKey(Intent.ACTION_EDIT))
+        		{
+        			mEditMode= ext.getBoolean(Intent.ACTION_EDIT);
+        		}
         	}
             /*mAlbumId = intent.getStringExtra("album");
             // If we have an album, show everything on the album, not just stuff
