@@ -343,6 +343,8 @@ public class PlaylistBrowserActivity extends ListFragment
         	Intent intent = new Intent(getActivity(),MusicBrowser.class);
             Bundle b = new Bundle();
             b.putString("playlist", id==RECENTLY_ADDED_PLAYLIST? "recentlyadded": Long.valueOf(id).toString());
+            b.putBoolean(Intent.ACTION_EDIT, true);
+            b.putBoolean("showAlbum", false);
             b.putString("fragment", TrackBrowserActivity.class.getName());
             intent.putExtras(b);
             startActivity(intent);

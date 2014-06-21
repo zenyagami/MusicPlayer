@@ -29,7 +29,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -105,6 +104,7 @@ public class TrackBrowserActivity extends ListFragment
     private static int mLastListPosFine = -1;
     private boolean mUseLastListPos = false;
     private ServiceToken mToken;
+	private boolean mShowAlbum=true;
 
     public TrackBrowserActivity()
     {
@@ -152,6 +152,9 @@ public class TrackBrowserActivity extends ListFragment
         		if(ext.containsKey(Intent.ACTION_EDIT))
         		{
         			mEditMode= ext.getBoolean(Intent.ACTION_EDIT);
+        		}if(ext.containsKey("showAlbum"))
+        		{
+        			mShowAlbum =ext.getBoolean("showAlbum");
         		}
         	}
             /*mAlbumId = intent.getStringExtra("album");
@@ -250,7 +253,6 @@ public class TrackBrowserActivity extends ListFragment
                     mPlaylist != null &&
                     !(mPlaylist.equals("podcasts") || mPlaylist.equals("recentlyadded")));
             setListAdapter(mAdapter);
-            //getActivity().setTitle(R.string.working_songs);
             getTrackCursor(mAdapter.getQueryHandler(), null, true);
         } else {
             mTrackCursor = mAdapter.getCursor();
@@ -263,7 +265,6 @@ public class TrackBrowserActivity extends ListFragment
             if (mTrackCursor != null) {
                 init(mTrackCursor, false);
             } else {
-            	//getActivity().setTitle(R.string.working_songs);
                 getTrackCursor(mAdapter.getQueryHandler(), null, true);
             }
         }
@@ -295,13 +296,15 @@ public class TrackBrowserActivity extends ListFragment
                     mLastListPosFine = cv.getTop();
                 }
             }
+            
             if (mEditMode) {
                 // clear the listeners so we won't get any more callbacks
                 ((TouchInterceptor) lv).setDropListener(null);
                 ((TouchInterceptor) lv).setRemoveListener(null);
             }
-        }*/
-
+        }
+         */
+    	
         MusicUtils.unbindFromService(mToken);
         try {
             if ("nowplaying".equals(mPlaylist)) {
@@ -329,7 +332,20 @@ public class TrackBrowserActivity extends ListFragment
         super.onDestroy();
     }
     
-    /**
+    @Override
+	public void onDetach() {
+    	if (mEditMode) {
+            // clear the listeners so we won't get any more callbacks
+   		 try {
+   			 ((TouchInterceptor) getListView()).setDropListener(null);
+                ((TouchInterceptor) getListView()).setRemoveListener(null);
+			} catch (IllegalStateException e) {
+			}
+        }
+		super.onDetach();
+	}
+
+	/**
      * Unregister a receiver, but eat the exception that is thrown if the
      * receiver was never registered to begin with. This is a little easier
      * than keeping track of whether the receivers have actually been
@@ -473,7 +489,7 @@ public class TrackBrowserActivity extends ListFragment
             } catch (Exception ex) {
             }
         }
-        mTrackList.setBackgroundColor(0xff000000);
+        //mTrackList.setBackgroundColor(0xff000000);
         mTrackList.setCacheColorHint(0);
     }
 
@@ -648,6 +664,7 @@ public class TrackBrowserActivity extends ListFragment
                 if (mAdapter != null) {
                     Cursor c = new NowPlayingCursor(MusicUtils.sService, mCursorCols);
                     if (c.getCount() == 0) {
+                    	c.close();
                     	getActivity().finish();
                         return;
                     }
@@ -832,7 +849,7 @@ public class TrackBrowserActivity extends ListFragment
         return super.dispatchKeyEvent(event);
     }*/
 
-    private void removeItem() {
+  /*  private void removeItem() {
         int curcount = mTrackCursor.getCount();
         int curpos = mTrackList.getSelectedItemPosition();
         if (curcount == 0 || curpos < 0) {
@@ -873,9 +890,9 @@ public class TrackBrowserActivity extends ListFragment
                 mTrackList.setSelection(curpos < curcount ? curpos : curcount);
             }
         }
-    }
+    }*/
     
-    private void moveItem(boolean up) {
+  /*  private void moveItem(boolean up) {
         int curcount = mTrackCursor.getCount(); 
         int curpos = mTrackList.getSelectedItemPosition();
         if ( (up && curpos < 1) || (!up  && curpos >= curcount - 1)) {
@@ -919,7 +936,7 @@ public class TrackBrowserActivity extends ListFragment
             wherearg[0] = mTrackCursor.getString(0);
             res.update(baseUri, values, where, wherearg);
         }
-    }
+    }*/
     
     @Override
 	public void onListItemClick(ListView l, View v, int position, long id)
@@ -1263,7 +1280,7 @@ public class TrackBrowserActivity extends ListFragment
             }
         }
 
-        private void dump() {
+       /* private void dump() {
             String where = "(";
             for (int i = 0; i < mSize; i++) {
                 where += mNowPlaying[i];
@@ -1273,7 +1290,7 @@ public class TrackBrowserActivity extends ListFragment
             }
             where += ")";
             Log.i("NowPlayingCursor: ", where);
-        }
+        }*/
 
         @Override
         public String getString(int column)
@@ -1367,13 +1384,13 @@ public class TrackBrowserActivity extends ListFragment
         private IMediaPlaybackService mService;
     }
     
-    static class TrackListAdapter extends SimpleCursorAdapter implements SectionIndexer {
+    private class TrackListAdapter extends SimpleCursorAdapter implements SectionIndexer {
         boolean mIsNowPlaying;
         boolean mDisableNowPlayingIndicator;
 
         int mTitleIdx;
         int mArtistIdx;
-        int mDurationIdx;
+       // int mDurationIdx;
         int mAudioIdIdx;
         int mAlbumId;
 
@@ -1390,10 +1407,10 @@ public class TrackBrowserActivity extends ListFragment
         private boolean mConstraintIsValid = false;
         protected ImageLoader imageLoader = ImageLoader.getInstance();
         private DisplayImageOptions options;
-        static class ViewHolder {
+        private class ViewHolder {
             TextView line1;
             TextView line2;
-            TextView duration;
+            //TextView duration;
             ImageView icon;
             ImageView play_indicator;
             CharArrayBuffer buffer1;
@@ -1462,7 +1479,7 @@ public class TrackBrowserActivity extends ListFragment
             mIsNowPlaying = isnowplaying;
             mDisableNowPlayingIndicator = disablenowplayingindicator;
             mUnknownArtist = context.getString(R.string.unknown_artist_name);
-           // mUnknownAlbum = context.getString(R.string.unknown_album_name);
+         //  mUnknownAlbum = context.getString(R.string.unknown_album_name);
             mQueryHandler = new TrackQueryHandler(context.getContentResolver());
             options= new DisplayImageOptions.Builder()
     		.showImageForEmptyUri(R.drawable.albumart_mp_unknown_list)
@@ -1487,7 +1504,7 @@ public class TrackBrowserActivity extends ListFragment
             if (cursor != null) {
                 mTitleIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
                 mArtistIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
-                mDurationIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
+              //  mDurationIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
                 mAlbumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
                 try {
                     mAudioIdIdx = cursor.getColumnIndexOrThrow(
@@ -1506,7 +1523,8 @@ public class TrackBrowserActivity extends ListFragment
             }
         }
 
-        @Override
+
+		@Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             View v = super.newView(context, cursor, parent);
            // ImageView iv = (ImageView) v.findViewById(R.id.icon);
@@ -1523,16 +1541,15 @@ public class TrackBrowserActivity extends ListFragment
             v.setTag(vh);
             return v;
         }
-
-        @Override
+      @Override
         public void bindView(View view, Context context, Cursor cursor) {
             
             ViewHolder vh = (ViewHolder) view.getTag();
             cursor.copyStringToBuffer(mTitleIdx, vh.buffer1);
             vh.line1.setText(vh.buffer1.data, 0, vh.buffer1.sizeCopied);
             
-           /* int secs = cursor.getInt(mDurationIdx) / 1000;
-            if (secs == 0) {
+          /*  int secs = cursor.getInt(mDurationIdx) / 1000;
+           if (secs == 0) {
                 vh.duration.setText("");
             } else {
                 vh.duration.setText(MusicUtils.makeTimeString(context, secs));
@@ -1566,8 +1583,16 @@ public class TrackBrowserActivity extends ListFragment
                 } catch (RemoteException ex) {
                 }
             }
-            long aid = cursor.getLong(mAlbumId);
-            imageLoader.displayImage ("content://media/external/audio/albumart/"+ aid, vh.icon,options);
+            if(!mShowAlbum)
+            {
+            	vh.icon.setVisibility(View.GONE);
+            }else
+            {
+            	vh.icon.setVisibility(View.VISIBLE);
+            	 long aid = cursor.getLong(mAlbumId);
+                 imageLoader.displayImage ("content://media/external/audio/albumart/"+ aid, vh.icon,options);
+            }
+           
             
             // Determining whether and where to show the "now playing indicator
             // is tricky, because we don't actually keep track of where the songs

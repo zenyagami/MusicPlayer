@@ -421,6 +421,7 @@ public class AlbumBrowserActivity extends ListFragment
     	Bundle b = new Bundle();
         b.putString("album", Long.valueOf(id).toString());
         b.putString("artist", mArtistId);
+        b.putBoolean("showAlbum", false);
         b.putString("fragment", TrackBrowserActivity.class.getName());
         intent.putExtras(b);
         startActivity(intent);

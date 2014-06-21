@@ -395,6 +395,7 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
         	Bundle b = new Bundle();
         	b.putString("playlist", "nowplaying");
         	b.putBoolean(Intent.ACTION_EDIT, true);
+        	b.putBoolean("showAlbum", false);
         	b.putString("fragment", TrackBrowserActivity.class.getName());
         	i.putExtras(b);
         	startActivity(i);
