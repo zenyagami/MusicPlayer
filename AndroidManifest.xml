@@ -47,6 +47,7 @@
         <activity
             android:name="com.android.music.MusicBrowserActivity"
             android:exported="true"
+            android:configChanges="screenSize|orientation"
             android:theme="@android:style/Theme.Holo" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -60,7 +61,7 @@
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
-        <activity android:name=".MusicBrowser" android:theme="@android:style/Theme.Holo.Light"/>
+        <activity android:name=".MusicBrowser" android:theme="@android:style/Theme.Holo" android:configChanges="screenSize|orientation"/>
         <!--
              This is the "current music playing" panel, which has special
              launch behavior.  We clear its task affinity, so it will not

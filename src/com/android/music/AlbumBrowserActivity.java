@@ -17,9 +17,11 @@
 package com.android.music;
 
 import com.android.music.MusicUtils.ServiceToken;
-import com.android.music.utils.Utils;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.AsyncQueryHandler;
@@ -32,9 +34,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -119,7 +118,7 @@ public class AlbumBrowserActivity extends ListFragment
           mAdapter = new AlbumListAdapter(
                   getActivity(),
                   this,
-                  R.layout.track_list_item,
+                  R.layout.single_music_row,
                   mAlbumCursor,
                   new String[] {},
                   new int[] {});
@@ -505,22 +504,20 @@ public class AlbumBrowserActivity extends ListFragment
     static class AlbumListAdapter extends SimpleCursorAdapter implements SectionIndexer {
         
         private final Drawable mNowPlayingOverlay;
-        private final BitmapDrawable mDefaultAlbumIcon;
+        //private final BitmapDrawable mDefaultAlbumIcon;
         private int mAlbumIdx;
         private int mArtistIdx;
-        private int mAlbumArtIndex;
+        //private int mAlbumArtIndex;
         private Context mContext;
-        //private final Resources mResources;
-       // private final StringBuilder mStringBuilder = new StringBuilder();
         private final String mUnknownAlbum;
         private final String mUnknownArtist;
-       // private final String mAlbumSongSeparator;
-        //private final Object[] mFormatArgs = new Object[1];
         private AlphabetIndexer mIndexer;
         private static AlbumBrowserActivity mActivity;
         private AsyncQueryHandler mQueryHandler;
         private String mConstraint = null;
         private boolean mConstraintIsValid = false;
+        protected ImageLoader imageLoader = ImageLoader.getInstance();
+        private DisplayImageOptions options;
         
         static class ViewHolder {
             TextView line1;
@@ -551,15 +548,23 @@ public class AlbumBrowserActivity extends ListFragment
             mUnknownAlbum = context.getString(R.string.unknown_album_name);
             mUnknownArtist = context.getString(R.string.unknown_artist_name);
          //   mAlbumSongSeparator = context.getString(R.string.albumsongseparator);
-
+            options= new DisplayImageOptions.Builder()
+    		.showImageForEmptyUri(R.drawable.albumart_mp_unknown_list)
+    		.showImageOnFail(R.drawable.albumart_mp_unknown_list)
+    		.cacheInMemory(true)
+    		.cacheOnDisc(true)
+    		 .imageScaleType(ImageScaleType.NONE)
+    		.considerExifParams(true)
+    		.build();
+            imageLoader.init(ImageLoaderConfiguration.createDefault(context));
             Resources r = context.getResources();
             mNowPlayingOverlay = r.getDrawable(R.drawable.indicator_ic_mp_playing_list);
 
-            Bitmap b = BitmapFactory.decodeResource(r, R.drawable.albumart_mp_unknown_list);
-            mDefaultAlbumIcon = new BitmapDrawable(context.getResources(), b);
+           // Bitmap b = BitmapFactory.decodeResource(r, R.drawable.albumart_mp_unknown_list);
+            //mDefaultAlbumIcon = new BitmapDrawable(context.getResources(), b);
             // no filter or dither, it's a lot faster and we can't tell the difference
-            mDefaultAlbumIcon.setFilterBitmap(false);
-            mDefaultAlbumIcon.setDither(false);
+            //mDefaultAlbumIcon.setFilterBitmap(false);
+            //mDefaultAlbumIcon.setDither(false);
             getColumnIndices(cursor);
            // mResources = context.getResources();
         }
@@ -568,7 +573,7 @@ public class AlbumBrowserActivity extends ListFragment
             if (cursor != null) {
                 mAlbumIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM);
                 mArtistIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST);
-                mAlbumArtIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART);
+              //  mAlbumArtIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART);
                 
                 if (mIndexer != null) {
                     mIndexer.setCursor(cursor);
@@ -587,25 +592,14 @@ public class AlbumBrowserActivity extends ListFragment
             return mQueryHandler;
         }
 
-        @SuppressWarnings("deprecation")
-		@SuppressLint("NewApi")
 		@Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
            View v = super.newView(context, cursor, parent);
            ViewHolder vh = new ViewHolder();
-           vh.line1 = (TextView) v.findViewById(R.id.line1);
-           vh.line2 = (TextView) v.findViewById(R.id.line2);
+           vh.line1 = (TextView) v.findViewById(R.id.playlistTitle);
+           vh.line2 = (TextView) v.findViewById(R.id.playlistArtista);
            vh.play_indicator = (ImageView) v.findViewById(R.id.play_indicator);
-           vh.icon = (ImageView) v.findViewById(R.id.icon);
-           if(Utils.isJB())
-           {vh.icon.setBackground(mDefaultAlbumIcon);
-        	   
-           }else
-           {
-        	   vh.icon.setBackgroundDrawable(mDefaultAlbumIcon);
-           }
-           
-           vh.icon.setPadding(0, 0, 1, 0);
+           vh.icon = (ImageView) v.findViewById(R.id.imgAlbumArt);
            v.setTag(vh);
            return v;
         }
@@ -630,24 +624,26 @@ public class AlbumBrowserActivity extends ListFragment
             }
             vh.line2.setText(displayname);
 
-            ImageView iv = vh.icon;
+            
             // We don't actually need the path to the thumbnail file,
             // we just use it to see if there is album art or not
-            String art = cursor.getString(mAlbumArtIndex);
+            //String art = cursor.getString(mAlbumArtIndex);
             long aid = cursor.getLong(0);
-            if (unknown || art == null || art.length() == 0) {
+            imageLoader.displayImage ("content://media/external/audio/albumart/"+ aid, vh.icon,options);
+            
+           /* if (unknown || art == null || art.length() == 0) {
                 iv.setImageDrawable(null);
             } else {
                 Drawable d = MusicUtils.getCachedArtwork(context, aid, mDefaultAlbumIcon);
                 iv.setImageDrawable(d);
-            }
+            }*/
             
             long currentalbumid = MusicUtils.getCurrentAlbumId();
-            iv = vh.play_indicator;
+            //iv = vh.play_indicator;
             if (currentalbumid == aid) {
-                iv.setImageDrawable(mNowPlayingOverlay);
+            	vh.play_indicator.setImageDrawable(mNowPlayingOverlay);
             } else {
-                iv.setImageDrawable(null);
+            	vh.play_indicator.setImageDrawable(null);
             }
         }
         

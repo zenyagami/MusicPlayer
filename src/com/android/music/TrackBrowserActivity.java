@@ -17,6 +17,10 @@
 package com.android.music;
 
 import com.android.music.MusicUtils.ServiceToken;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import android.app.Activity;
 import android.app.SearchManager;
@@ -166,7 +170,8 @@ public class TrackBrowserActivity extends ListFragment
                 MediaStore.Audio.Media.ALBUM,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ARTIST_ID,
-                MediaStore.Audio.Media.DURATION
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.ALBUM_ID
         };
         mPlaylistMemberCols = new String[] {
                 MediaStore.Audio.Playlists.Members._ID,
@@ -237,7 +242,7 @@ public class TrackBrowserActivity extends ListFragment
             mAdapter = new TrackListAdapter(
             		getActivity().getApplication(), // need to use application context to avoid leaks
                     this,
-                    mEditMode ? R.layout.edit_track_list_item : R.layout.track_list_item,
+                    mEditMode ? R.layout.edit_track_list_item : R.layout.single_music_row,
                     null, // cursor
                     new String[] {},
                     new int[] {},
@@ -1370,6 +1375,7 @@ public class TrackBrowserActivity extends ListFragment
         int mArtistIdx;
         int mDurationIdx;
         int mAudioIdIdx;
+        int mAlbumId;
 
         private final StringBuilder mBuilder = new StringBuilder();
         private final String mUnknownArtist;
@@ -1382,11 +1388,13 @@ public class TrackBrowserActivity extends ListFragment
         private TrackQueryHandler mQueryHandler;
         private String mConstraint = null;
         private boolean mConstraintIsValid = false;
-        
+        protected ImageLoader imageLoader = ImageLoader.getInstance();
+        private DisplayImageOptions options;
         static class ViewHolder {
             TextView line1;
             TextView line2;
             TextView duration;
+            ImageView icon;
             ImageView play_indicator;
             CharArrayBuffer buffer1;
             char [] buffer2;
@@ -1455,8 +1463,16 @@ public class TrackBrowserActivity extends ListFragment
             mDisableNowPlayingIndicator = disablenowplayingindicator;
             mUnknownArtist = context.getString(R.string.unknown_artist_name);
            // mUnknownAlbum = context.getString(R.string.unknown_album_name);
-            
             mQueryHandler = new TrackQueryHandler(context.getContentResolver());
+            options= new DisplayImageOptions.Builder()
+    		.showImageForEmptyUri(R.drawable.albumart_mp_unknown_list)
+    		.showImageOnFail(R.drawable.albumart_mp_unknown_list)
+    		.cacheInMemory(true)
+    		.cacheOnDisc(true)
+    		 .imageScaleType(ImageScaleType.NONE)
+    		.considerExifParams(true)
+    		.build();
+            imageLoader.init(ImageLoaderConfiguration.createDefault(context));
         }
         
         public void setActivity(TrackBrowserActivity newactivity) {
@@ -1472,6 +1488,7 @@ public class TrackBrowserActivity extends ListFragment
                 mTitleIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
                 mArtistIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
                 mDurationIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
+                mAlbumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
                 try {
                     mAudioIdIdx = cursor.getColumnIndexOrThrow(
                             MediaStore.Audio.Playlists.Members.AUDIO_ID);
@@ -1492,13 +1509,14 @@ public class TrackBrowserActivity extends ListFragment
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             View v = super.newView(context, cursor, parent);
-            ImageView iv = (ImageView) v.findViewById(R.id.icon);
-            iv.setVisibility(View.GONE);
+           // ImageView iv = (ImageView) v.findViewById(R.id.icon);
+            //iv.setVisibility(View.GONE);
             
             ViewHolder vh = new ViewHolder();
-            vh.line1 = (TextView) v.findViewById(R.id.line1);
-            vh.line2 = (TextView) v.findViewById(R.id.line2);
-            vh.duration = (TextView) v.findViewById(R.id.duration);
+            vh.icon = (ImageView)v.findViewById(R.id.imgAlbumArt);
+            vh.line1 = (TextView) v.findViewById(R.id.playlistTitle);
+            vh.line2 = (TextView) v.findViewById(R.id.playlistArtista);
+           // vh.duration = (TextView) v.findViewById(R.id.duration);
             vh.play_indicator = (ImageView) v.findViewById(R.id.play_indicator);
             vh.buffer1 = new CharArrayBuffer(100);
             vh.buffer2 = new char[200];
@@ -1510,16 +1528,15 @@ public class TrackBrowserActivity extends ListFragment
         public void bindView(View view, Context context, Cursor cursor) {
             
             ViewHolder vh = (ViewHolder) view.getTag();
-            
             cursor.copyStringToBuffer(mTitleIdx, vh.buffer1);
             vh.line1.setText(vh.buffer1.data, 0, vh.buffer1.sizeCopied);
             
-            int secs = cursor.getInt(mDurationIdx) / 1000;
+           /* int secs = cursor.getInt(mDurationIdx) / 1000;
             if (secs == 0) {
                 vh.duration.setText("");
             } else {
                 vh.duration.setText(MusicUtils.makeTimeString(context, secs));
-            }
+            }*/
             
             final StringBuilder builder = mBuilder;
             builder.delete(0, builder.length());
@@ -1536,7 +1553,7 @@ public class TrackBrowserActivity extends ListFragment
             }
             builder.getChars(0, len, vh.buffer2, 0);
             vh.line2.setText(vh.buffer2, 0, len);
-
+            
             ImageView iv = vh.play_indicator;
             long id = -1;
             if (MusicUtils.sService != null) {
@@ -1549,6 +1566,8 @@ public class TrackBrowserActivity extends ListFragment
                 } catch (RemoteException ex) {
                 }
             }
+            long aid = cursor.getLong(mAlbumId);
+            imageLoader.displayImage ("content://media/external/audio/albumart/"+ aid, vh.icon,options);
             
             // Determining whether and where to show the "now playing indicator
             // is tricky, because we don't actually keep track of where the songs
@@ -1568,6 +1587,8 @@ public class TrackBrowserActivity extends ListFragment
             } else {
                 iv.setVisibility(View.GONE);
             }
+            
+            
         }
         
         @Override
