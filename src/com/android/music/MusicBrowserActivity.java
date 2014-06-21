@@ -47,15 +47,6 @@ public class MusicBrowserActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        /*int activeTab = MusicUtils.getIntPref(this, "activetab", R.id.artisttab);
-        if (activeTab != R.id.artisttab
-                && activeTab != R.id.albumtab
-                && activeTab != R.id.songtab
-                && activeTab != R.id.playlisttab) {
-            activeTab = R.id.artisttab;
-        }
-        //MusicUtils.activateTab(this, activeTab);*/
-        //startActivity(new Intent(getApplicationContext(), MusicBrowser.class));
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         String shuf = getIntent().getStringExtra("autoshuffle");
@@ -100,7 +91,7 @@ public class MusicBrowserActivity extends FragmentActivity
     };
     
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
-    	private static final int PAGES =4;
+    	private static final int PAGES =3;
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -109,16 +100,16 @@ public class MusicBrowserActivity extends FragmentActivity
 		public CharSequence getPageTitle(int position) {
         	int id=0;
 			switch (position) {
-			case 0:
+			/*case 0:
 				id = R.string.artists_title;
-				break;
-			case 1:
+				break;*/
+			case 0:
 				id = R.string.albums_title;
 				break;
-			case 2: 
+			case 1: 
 				id=R.string.tracks_title;
 				break;
-			case 3:
+			case 2:
 				id = R.string.playlists_title;
 				break;
 			default:
@@ -131,13 +122,13 @@ public class MusicBrowserActivity extends FragmentActivity
 		@Override
         public Fragment getItem(int position) {
         	switch (position) {
+			/*case 0:
+				return new ArtistAlbumBrowserActivity();*/
 			case 0:
-				return new ArtistAlbumBrowserActivity();
-			case 1:
 				return new AlbumBrowserActivity();
-			case 2:
+			case 1:
 				return new TrackBrowserActivity();
-			case 3:
+			case 2:
 				return new PlaylistBrowserActivity();
 			default:
 				break;

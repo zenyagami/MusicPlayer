@@ -309,7 +309,7 @@ public class PlaylistBrowserActivity extends ListFragment
     
     @Override
 	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
+		
 		if (mCreateShortcut) {
             return;
         }
@@ -333,6 +333,7 @@ public class PlaylistBrowserActivity extends ListFragment
         mPlaylistCursor.moveToPosition(mi.position);
         menu.setHeaderTitle(mPlaylistCursor.getString(mPlaylistCursor.getColumnIndexOrThrow(
                 MediaStore.Audio.Playlists.NAME)));
+        super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
 
