@@ -112,6 +112,7 @@ public class TrackBrowserActivity extends ListFragment
     {
     	setHasOptionsMenu(true);
         super.onCreate(icicle);
+        setRetainInstance(true);
         /*requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         Intent intent = getIntent();
         if (intent != null) {
@@ -1429,12 +1430,17 @@ public class TrackBrowserActivity extends ListFragment
             @Override
             protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
                 //Log.i("@@@", "query complete: " + cursor.getCount() + "   " + mActivity);
-                mActivity.init(cursor, cookie != null);
-                if (token == 0 && cookie != null && cursor != null && cursor.getCount() >= 100) {
-                    QueryArgs args = (QueryArgs) cookie;
-                    startQuery(1, null, args.uri, args.projection, args.selection,
-                            args.selectionArgs, args.orderBy);
-                }
+            	try {
+            		 mActivity.init(cursor, cookie != null);
+                     if (token == 0 && cookie != null && cursor != null && cursor.getCount() >= 100) {
+                         QueryArgs args = (QueryArgs) cookie;
+                         startQuery(1, null, args.uri, args.projection, args.selection,
+                                 args.selectionArgs, args.orderBy);
+                     }
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+               
             }
         }
         

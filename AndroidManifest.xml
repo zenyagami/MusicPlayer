@@ -144,25 +144,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.music.ArtistAlbumBrowserActivity"
-            android:theme="@android:style/Theme.Holo"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="android.intent.action.PICK" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.dir/artistalbum" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.android.music.AlbumBrowserActivity"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="android.intent.action.PICK" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.dir/album" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="com.android.music.NowPlayingActivity"
             android:exported="false" >
             <intent-filter>
@@ -297,10 +278,7 @@
             android:name="com.android.music.RenamePlaylist"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Dialog" />
-        <activity
-            android:name="com.android.music.WeekSelector"
-            android:exported="false"
-            android:theme="@android:style/Theme.Holo.Dialog" />
+        
         <activity
             android:name="com.android.music.DeleteItems"
             android:exported="false"

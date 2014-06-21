@@ -40,8 +40,6 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,11 +47,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,11 +63,11 @@ import java.util.ArrayList;
 public class PlaylistBrowserActivity extends ListFragment
     implements View.OnCreateContextMenuListener, MusicUtils.Defs
 {
-    private static final String TAG = "PlaylistBrowserActivity";
-    private static final int DELETE_PLAYLIST = CHILD_MENU_BASE + 1;
-    private static final int EDIT_PLAYLIST = CHILD_MENU_BASE + 2;
+    //private static final String TAG = "PlaylistBrowserActivity";
+    //private static final int DELETE_PLAYLIST = CHILD_MENU_BASE + 1;
+    //private static final int EDIT_PLAYLIST = CHILD_MENU_BASE + 2;
     private static final int RENAME_PLAYLIST = CHILD_MENU_BASE + 3;
-    private static final int CHANGE_WEEKS = CHILD_MENU_BASE + 4;
+    //private static final int CHANGE_WEEKS = CHILD_MENU_BASE + 4;
     private static final long RECENTLY_ADDED_PLAYLIST = -1;
     private static final long ALL_SONGS_PLAYLIST = -2;
     private static final long PODCASTS_PLAYLIST = -3;
@@ -163,7 +162,7 @@ public class PlaylistBrowserActivity extends ListFragment
       if (mAdapter == null) {
           //Log.i("@@@", "starting query");
           mAdapter = new PlaylistListAdapter(
-                  getActivity().getApplication(),
+                  getActivity(),
                   this,
                   R.layout.single_playlist_item,
                   mPlaylistCursor,
@@ -307,81 +306,6 @@ public class PlaylistBrowserActivity extends ListFragment
     }
     
     
-    
-    
-    @Override
-	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
-		
-		if (mCreateShortcut) {
-            return;
-        }
-
-        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;
-
-        menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
-
-        if (mi.id >= 0 /*|| mi.id == PODCASTS_PLAYLIST*/) {
-            menu.add(0, DELETE_PLAYLIST, 0, R.string.delete_playlist_menu);
-        }
-
-        if (mi.id == RECENTLY_ADDED_PLAYLIST) {
-            menu.add(0, EDIT_PLAYLIST, 0, R.string.edit_playlist_menu);
-        }
-
-        if (mi.id >= 0) {
-            menu.add(0, RENAME_PLAYLIST, 0, R.string.rename_playlist_menu);
-        }
-
-        mPlaylistCursor.moveToPosition(mi.position);
-        menu.setHeaderTitle(mPlaylistCursor.getString(mPlaylistCursor.getColumnIndexOrThrow(
-                MediaStore.Audio.Playlists.NAME)));
-        super.onCreateContextMenu(menu, v, menuInfo);
-	}
-
-
-    //TODO
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case PLAY_SELECTION:
-                if (mi.id == RECENTLY_ADDED_PLAYLIST) {
-                    playRecentlyAdded();
-                } else if (mi.id == PODCASTS_PLAYLIST) {
-                    playPodcasts();
-                } else {
-                    MusicUtils.playPlaylist(getActivity(), mi.id);
-                }
-                break;
-            case DELETE_PLAYLIST:
-                Uri uri = ContentUris.withAppendedId(
-                        MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, mi.id);
-                getActivity().getContentResolver().delete(uri, null, null);
-                Toast.makeText(getActivity(), R.string.playlist_deleted_message, Toast.LENGTH_SHORT).show();
-                if (mPlaylistCursor.getCount() == 0) {
-                	getActivity(). setTitle(R.string.no_playlists_title);
-                }
-                break;
-            case EDIT_PLAYLIST:
-                if (mi.id == RECENTLY_ADDED_PLAYLIST) {
-                    Intent intent = new Intent();
-                    intent.setClass(getActivity(), WeekSelector.class);
-                    startActivityForResult(intent, CHANGE_WEEKS);
-                    return true;
-                } else {
-                    Log.e(TAG, "should not be here");
-                }
-                break;
-            case RENAME_PLAYLIST:
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), RenamePlaylist.class);
-                intent.putExtra("rename", mi.id);
-                startActivityForResult(intent, RENAME_PLAYLIST);
-                break;
-        }
-        return true;
-    }
-
     @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
@@ -558,7 +482,7 @@ public class PlaylistBrowserActivity extends ListFragment
         return cc;
     }
     
-    static class PlaylistListAdapter extends SimpleCursorAdapter {
+     class PlaylistListAdapter extends SimpleCursorAdapter  {
         int mTitleIdx;
         int mIdIdx;
         private PlaylistBrowserActivity mActivity = null;
@@ -658,17 +582,62 @@ public class PlaylistBrowserActivity extends ListFragment
                 iv.setImageResource(R.drawable.ic_mp_playlist_list);
             }
             ImageButton overflow = (ImageButton)view.findViewById(R.id.btnPlaylistOverflow);
+            overflow.setTag(id);
             overflow.setOnClickListener(new OnClickListener() {
 				
 				@Override
 				public void onClick(View v) {
-					Toast.makeText(context, "click"+mIdIdx, Toast.LENGTH_SHORT).show();
+					showPopup(v);
 					
 				}
 			});
          
         }
-
+		public void showPopup(View v) {
+			final long id = (Long) v.getTag();
+		    PopupMenu popup = new PopupMenu(context, v);
+		    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					switch (item.getItemId()) {
+					case R.id.PLAY_SELECTION:
+						 if (id == RECENTLY_ADDED_PLAYLIST) {
+			                    playRecentlyAdded();
+			                } else if (id == PODCASTS_PLAYLIST) {
+			                    playPodcasts();
+			                } else {
+			                    MusicUtils.playPlaylist(context, id);
+			                }
+						return true;
+					case R.id.DELETE_PLAYLIST:
+						 Uri uri = ContentUris.withAppendedId(
+			                        MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, id);
+			                context.getContentResolver().delete(uri, null, null);
+			                Toast.makeText(context, R.string.playlist_deleted_message, Toast.LENGTH_SHORT).show();
+			                getPlaylistCursor(mAdapter.getQueryHandler(), null);
+						return true;
+					case R.id.RENAME_PLAYLIST:
+						Intent intent = new Intent();
+		                intent.setClass(context, RenamePlaylist.class);
+		                intent.putExtra("rename", id);
+		                ((MusicBrowserActivity) context).startActivityForResult(intent, RENAME_PLAYLIST);
+						return true;
+					default:
+						break;
+					}
+					return false;
+				}
+			});
+		    MenuInflater inflater = popup.getMenuInflater();
+		    inflater.inflate(R.menu.playlist_menu, popup.getMenu());
+		    if(id==RECENTLY_ADDED_PLAYLIST)
+			{
+				popup.getMenu().removeItem(R.id.RENAME_PLAYLIST);
+				popup.getMenu().removeItem(R.id.DELETE_PLAYLIST);
+			}
+		    popup.show();
+		}
         @Override
         public void changeCursor(Cursor cursor) {
             if (mActivity.isDetached() || !mActivity.isAdded()  && cursor != null) {
@@ -695,6 +664,9 @@ public class PlaylistBrowserActivity extends ListFragment
             mConstraintIsValid = true;
             return c;
         }
+		
+		
+		
     }
     
     private Cursor mPlaylistCursor;
