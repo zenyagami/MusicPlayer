@@ -47,9 +47,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -153,7 +155,7 @@ public class PlaylistBrowserActivity extends ListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       ListView lv = getListView();
-     // lv.setOnCreateContextMenuListener(this);
+    // lv.setOnCreateContextMenuListener(this);
       lv.setTextFilterEnabled(true);
 
      // mAdapter = (PlaylistListAdapter) getLastNonConfigurationInstance();
@@ -163,7 +165,7 @@ public class PlaylistBrowserActivity extends ListFragment
           mAdapter = new PlaylistListAdapter(
                   getActivity().getApplication(),
                   this,
-                  R.layout.track_list_item,
+                  R.layout.single_playlist_item,
                   mPlaylistCursor,
                   new String[] { MediaStore.Audio.Playlists.NAME},
                   new int[] { android.R.id.text1 });
@@ -562,6 +564,7 @@ public class PlaylistBrowserActivity extends ListFragment
         private PlaylistBrowserActivity mActivity = null;
         private AsyncQueryHandler mQueryHandler;
         private String mConstraint = null;
+        private Context context;
         private boolean mConstraintIsValid = false;
 
         class QueryHandler extends AsyncQueryHandler {
@@ -583,6 +586,7 @@ public class PlaylistBrowserActivity extends ListFragment
                 int layout, Cursor cursor, String[] from, int[] to) {
             super(context, layout, cursor, from, to,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
             mActivity = currentactivity;
+            this.context = context;
             getColumnIndices(cursor);
             mQueryHandler = new QueryHandler(context.getContentResolver());
         }
@@ -601,30 +605,68 @@ public class PlaylistBrowserActivity extends ListFragment
             return mQueryHandler;
         }
 
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
+     /*   @Override
+		public View getView(final int position, View convertView, ViewGroup parent) {
+        	if(convertView==null)
+        	{
+        		convertView = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.single_playlist_item, null);
+        		
+        	}
+        	 TextView tv = (TextView) convertView.findViewById(R.id.txtPlaylistTitle);
+             //getItem(position);
+             
+             String name = this.getCursor().getString(mTitleIdx);
+             tv.setText(name);
+             
+             long id = this.getCursor().getLong(mIdIdx);
+             
+             ImageView iv = (ImageView) convertView.findViewById(R.id.imgPlaylistIcon);
+             if (id == RECENTLY_ADDED_PLAYLIST) {
+                 iv.setImageResource(R.drawable.ic_mp_playlist_recently_added_list);
+             } else {
+                 iv.setImageResource(R.drawable.ic_mp_playlist_list);
+             }
+             ImageButton overflow = (ImageButton)convertView.findViewById(R.id.btnPlaylistOverflow);
+             overflow.setOnClickListener(new OnClickListener() {
+ 				
+ 				@Override
+ 				public void onClick(View v) {
+ 					Toast.makeText(context, "click"+position, Toast.LENGTH_SHORT).show();
+ 					
+ 				}
+ 			});
+        	
+        	return convertView;
+        	
+        	
+        	
+		}*/
+		@Override
+        public void bindView(View view, final Context context, final Cursor cursor) {
             
-            TextView tv = (TextView) view.findViewById(R.id.line1);
+            TextView tv = (TextView) view.findViewById(R.id.txtPlaylistTitle);
             
             String name = cursor.getString(mTitleIdx);
             tv.setText(name);
             
             long id = cursor.getLong(mIdIdx);
             
-            ImageView iv = (ImageView) view.findViewById(R.id.icon);
+            ImageView iv = (ImageView) view.findViewById(R.id.imgPlaylistIcon);
             if (id == RECENTLY_ADDED_PLAYLIST) {
                 iv.setImageResource(R.drawable.ic_mp_playlist_recently_added_list);
             } else {
                 iv.setImageResource(R.drawable.ic_mp_playlist_list);
             }
-            ViewGroup.LayoutParams p = iv.getLayoutParams();
-            p.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-            p.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-
-            iv = (ImageView) view.findViewById(R.id.play_indicator);
-            iv.setVisibility(View.GONE);
-
-            view.findViewById(R.id.line2).setVisibility(View.GONE);
+            ImageButton overflow = (ImageButton)view.findViewById(R.id.btnPlaylistOverflow);
+            overflow.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					Toast.makeText(context, "click"+mIdIdx, Toast.LENGTH_SHORT).show();
+					
+				}
+			});
+         
         }
 
         @Override

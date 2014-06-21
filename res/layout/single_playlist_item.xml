@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:divider="?android:attr/dividerHorizontal"
+    android:dividerPadding="8dp"
+    android:orientation="horizontal"
+    android:paddingLeft="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:descendantFocusability="blocksDescendants"
+    android:showDividers="middle" >
+
+    <ImageView
+        android:id="@+id/imgPlaylistIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_mp_playlist_recently_added_list" />
+
+    <TextView
+        android:id="@+id/txtPlaylistTitle"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        android:singleLine="true"
+        android:gravity="center_vertical"
+        android:text="@string/albums_menu" />
+
+    <ImageButton
+        android:id="@+id/btnPlaylistOverflow"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:src="@drawable/contextual_menu_anchor_normal" />
+
+</LinearLayout>
