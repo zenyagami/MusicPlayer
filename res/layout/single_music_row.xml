@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal" >
 
     <ImageView
@@ -10,7 +11,8 @@
         android:layout_height="90dp" />
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent" >
 
         <LinearLayout
@@ -41,12 +43,20 @@
             android:id="@+id/play_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:paddingBottom="8dp"
+            android:layout_alignParentRight="true"
             android:layout_marginRight="12dip"
             android:layout_marginTop="10dip"
+            android:paddingBottom="8dp"
             android:src="@drawable/indicator_ic_mp_playing_list" />
     </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/btnOverFlowMenu"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="48dp"
+        android:layout_gravity="center"
+        android:layout_height="48dp"
+        android:src="@drawable/contextual_menu_anchor_normal" />
 
 </LinearLayout>

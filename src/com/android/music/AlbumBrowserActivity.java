@@ -43,27 +43,28 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AlphabetIndexer;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.SectionIndexer;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 
 
 public class AlbumBrowserActivity extends ListFragment
-    implements View.OnCreateContextMenuListener, MusicUtils.Defs, ServiceConnection
+    implements MusicUtils.Defs, ServiceConnection
 {
     private String mCurrentAlbumId;
     private String mCurrentAlbumName;
@@ -72,7 +73,7 @@ public class AlbumBrowserActivity extends ListFragment
     boolean mIsUnknownAlbum;
     private AlbumListAdapter mAdapter;
     private boolean mAdapterSent;
-    private final static int SEARCH = CHILD_MENU_BASE;
+    //private final static int SEARCH = CHILD_MENU_BASE;
     private static int mLastListPosCourse = -1;
     private static int mLastListPosFine = -1;
     private ServiceToken mToken;
@@ -243,7 +244,7 @@ public class AlbumBrowserActivity extends ListFragment
 
         if (mAlbumCursor == null) {
             MusicUtils.displayDatabaseError(getActivity());
-            getActivity().closeContextMenu();
+           // getActivity().closeContextMenu();
             mReScanHandler.sendEmptyMessageDelayed(0, 1000);
             return;
         }
@@ -275,7 +276,7 @@ public class AlbumBrowserActivity extends ListFragment
         	getActivity(). setTitle(R.string.albums_title);
     }
 
-    @Override
+    /*@Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfoIn) {
         menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
         SubMenu sub = menu.addSubMenu(0, ADD_TO_PLAYLIST, 0, R.string.add_to_playlist);
@@ -355,7 +356,7 @@ public class AlbumBrowserActivity extends ListFragment
 
         }
         return super.onContextItemSelected(item);
-    }
+    }*/
 
     void doSearch() {
         CharSequence title = null;
@@ -502,6 +503,7 @@ public class AlbumBrowserActivity extends ListFragment
         return ret;
     }
     
+    
     static class AlbumListAdapter extends SimpleCursorAdapter implements SectionIndexer {
         
         private final Drawable mNowPlayingOverlay;
@@ -523,8 +525,14 @@ public class AlbumBrowserActivity extends ListFragment
         static class ViewHolder {
             TextView line1;
             TextView line2;
+            ImageButton overflow;
             ImageView play_indicator;
             ImageView icon;
+        }
+        static class popMenuHolder
+        {
+        	String albumName;
+        	String albumId;
         }
 
         static class QueryHandler extends AsyncQueryHandler {
@@ -601,6 +609,7 @@ public class AlbumBrowserActivity extends ListFragment
            vh.line2 = (TextView) v.findViewById(R.id.playlistArtista);
            vh.play_indicator = (ImageView) v.findViewById(R.id.play_indicator);
            vh.icon = (ImageView) v.findViewById(R.id.imgAlbumArt);
+           vh.overflow = (ImageButton)v.findViewById(R.id.btnOverFlowMenu);
            v.setTag(vh);
            return v;
         }
@@ -624,21 +633,8 @@ public class AlbumBrowserActivity extends ListFragment
                 displayname = mUnknownArtist;
             }
             vh.line2.setText(displayname);
-
-            
-            // We don't actually need the path to the thumbnail file,
-            // we just use it to see if there is album art or not
-            //String art = cursor.getString(mAlbumArtIndex);
             long aid = cursor.getLong(0);
             imageLoader.displayImage ("content://media/external/audio/albumart/"+ aid, vh.icon,options);
-            
-           /* if (unknown || art == null || art.length() == 0) {
-                iv.setImageDrawable(null);
-            } else {
-                Drawable d = MusicUtils.getCachedArtwork(context, aid, mDefaultAlbumIcon);
-                iv.setImageDrawable(d);
-            }*/
-            
             long currentalbumid = MusicUtils.getCurrentAlbumId();
             //iv = vh.play_indicator;
             if (currentalbumid == aid) {
@@ -646,8 +642,87 @@ public class AlbumBrowserActivity extends ListFragment
             } else {
             	vh.play_indicator.setImageDrawable(null);
             }
+            popMenuHolder hol = new popMenuHolder();
+            hol.albumId=cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID));;
+            hol.albumName = name;
+            
+            vh.overflow.setTag(hol);
+            vh.overflow.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					showPopup(v);
+				}
+			});
+            
         }
-        
+        public void showPopup(View v) {
+			final popMenuHolder holder = (popMenuHolder) v.getTag();
+		    PopupMenu popup = new PopupMenu(mContext, v);
+		    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					 switch (item.getItemId()) {
+			            case PLAY_SELECTION: {
+			                // play the selected album
+			                long [] list = MusicUtils.getSongListForAlbum(mContext, Long.parseLong(holder.albumId));
+			                MusicUtils.playAll(mContext, list, 0);
+			                return true;
+			            }
+
+			            case QUEUE: {
+			                long [] list = MusicUtils.getSongListForAlbum(mContext, Long.parseLong(holder.albumId));
+			                MusicUtils.addToCurrentPlaylist(mContext, list);
+			                return true;
+			            }
+
+			            case NEW_PLAYLIST: {
+			            	mActivity.mCurrentAlbumId = holder.albumId;
+			                Intent intent = new Intent();
+			                intent.setClass(mContext, CreatePlaylist.class);
+			                mActivity.startActivityForResult(intent, NEW_PLAYLIST);
+			                return true;
+			            }
+
+			            case PLAYLIST_SELECTED: {
+			                long [] list = MusicUtils.getSongListForAlbum(mContext, Long.parseLong(holder.albumId));
+			                long playlist = item.getIntent().getLongExtra("playlist", 0);
+			                MusicUtils.addToPlaylist(mContext, list, playlist);
+			                return true;
+			            }
+			            case DELETE_ITEM: {
+			                long [] list = MusicUtils.getSongListForAlbum(mContext, Long.parseLong(holder.albumId));
+			                String f;
+			                if (android.os.Environment.isExternalStorageRemovable()) {
+			                    f = mContext.getString(R.string.delete_album_desc);
+			                } else {
+			                    f = mContext.getString(R.string.delete_album_desc_nosdcard);
+			                }
+			                String desc = String.format(f, holder.albumName);
+			                Bundle b = new Bundle();
+			                b.putString("description", desc);
+			                b.putLongArray("items", list);
+			                Intent intent = new Intent();
+			                intent.setClass(mContext, DeleteItems.class);
+			                intent.putExtras(b);
+			                mActivity.startActivityForResult(intent, -1);
+			                return true;
+			            }
+					 }
+					 return false;
+			            
+			}});
+		    Menu menu = popup.getMenu();
+		    
+		    menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
+	        SubMenu sub = menu.addSubMenu(0, ADD_TO_PLAYLIST, 0, R.string.add_to_playlist);
+	        MusicUtils.makePlaylistMenu(mContext, sub);
+	        menu.add(0, DELETE_ITEM, 0, R.string.delete_item);
+	        
+	       
+		    popup.show();
+		}
         @Override
         public void changeCursor(Cursor cursor) {
             if (mActivity.isAdded() && !mActivity.isDetached() && cursor != null) {
