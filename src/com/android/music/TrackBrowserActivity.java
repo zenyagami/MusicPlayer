@@ -23,6 +23,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.AsyncQueryHandler;
 import android.content.BroadcastReceiver;
@@ -30,6 +31,7 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -47,7 +49,6 @@ import android.provider.MediaStore.Audio.Playlists;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,7 +57,6 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AlphabetIndexer;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
@@ -65,7 +65,6 @@ import android.widget.PopupMenu;
 import android.widget.SectionIndexer;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import java.util.Arrays;
@@ -599,12 +598,12 @@ public class TrackBrowserActivity extends ListFragment
         }
     };
     
-    private TouchInterceptor.RemoveListener mRemoveListener =
+   /* private TouchInterceptor.RemoveListener mRemoveListener =
         new TouchInterceptor.RemoveListener() {
         public void remove(int which) {
             removePlaylistItem(which);
         }
-    };
+    };*/
 
     private void removePlaylistItem(int which) {
         View v = mTrackList.getChildAt(which - mTrackList.getFirstVisiblePosition());
@@ -684,7 +683,7 @@ public class TrackBrowserActivity extends ListFragment
     // Cursor should be positioned on the entry to be checked
     // Returns false if the entry matches the naming pattern used for recordings,
     // or if it is marked as not music in the database.
-    private boolean isMusic(Cursor c) {
+   /* private boolean isMusic(Cursor c) {
         int titleidx = c.getColumnIndex(MediaStore.Audio.Media.TITLE);
         int albumidx = c.getColumnIndex(MediaStore.Audio.Media.ALBUM);
         int artistidx = c.getColumnIndex(MediaStore.Audio.Media.ARTIST);
@@ -706,7 +705,7 @@ public class TrackBrowserActivity extends ListFragment
             ismusic = mTrackCursor.getInt(ismusic_idx) != 0;
         }
         return ismusic;
-    }
+    }*/
 
   /*  @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfoIn) {
@@ -1672,9 +1671,9 @@ public class TrackBrowserActivity extends ListFragment
 			                return true;
 
 			            case DELETE_ITEM: {
-			                long [] list = new long[1];
+			                final long [] list = new long[1];
 			                list[0] = (int) mSelectedId;
-			                Bundle b = new Bundle();
+			               // Bundle b = new Bundle();
 			                String f;
 			                if (android.os.Environment.isExternalStorageRemovable()) {
 			                    f = getString(R.string.delete_song_desc); 
@@ -1682,12 +1681,24 @@ public class TrackBrowserActivity extends ListFragment
 			                    f = getString(R.string.delete_song_desc_nosdcard); 
 			                }
 			                String desc = String.format(f, mCurrentTrackName);
-			                b.putString("description", desc);
+			            /*    b.putString("description", desc);
 			                b.putLongArray("items", list);
 			                Intent intent = new Intent();
 			                intent.setClass(getActivity(), DeleteItems.class);
 			                intent.putExtras(b);
-			                startActivityForResult(intent, -1);
+			                startActivityForResult(intent, -1);*/
+			                new AlertDialog.Builder(mActivity.getActivity())
+			                .setMessage(desc)
+			                .setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									MusicUtils.deleteTracks(context, list);
+									getTrackCursor(mQueryHandler, null, true);
+									
+								}
+							}).setNegativeButton(getString(android.R.string.cancel), null).create().show();
+			                
 			                return true;
 			            }
 			            

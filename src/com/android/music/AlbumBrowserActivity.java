@@ -23,12 +23,14 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.AsyncQueryHandler;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -662,6 +664,8 @@ public class AlbumBrowserActivity extends ListFragment
 				
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
+					mActivity.mCurrentAlbumId = holder.albumId;
+					mActivity.mCurrentAlbumName = holder.albumName;
 					 switch (item.getItemId()) {
 			            case PLAY_SELECTION: {
 			                // play the selected album
@@ -691,21 +695,26 @@ public class AlbumBrowserActivity extends ListFragment
 			                return true;
 			            }
 			            case DELETE_ITEM: {
-			                long [] list = MusicUtils.getSongListForAlbum(mContext, Long.parseLong(holder.albumId));
+			                final long [] list = MusicUtils.getSongListForAlbum(mContext, Long.parseLong(holder.albumId));
 			                String f;
 			                if (android.os.Environment.isExternalStorageRemovable()) {
 			                    f = mContext.getString(R.string.delete_album_desc);
 			                } else {
 			                    f = mContext.getString(R.string.delete_album_desc_nosdcard);
 			                }
+			                mActivity.mAlbumCursor = getCursor();
 			                String desc = String.format(f, holder.albumName);
-			                Bundle b = new Bundle();
-			                b.putString("description", desc);
-			                b.putLongArray("items", list);
-			                Intent intent = new Intent();
-			                intent.setClass(mContext, DeleteItems.class);
-			                intent.putExtras(b);
-			                mActivity.startActivityForResult(intent, -1);
+			                new AlertDialog.Builder(mActivity.getActivity())
+			                .setMessage(desc)
+			                .setPositiveButton(mContext.getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									MusicUtils.deleteTracks(mContext, list);
+									mActivity.getAlbumCursor(mQueryHandler, null);
+								}
+							}).setNegativeButton(mContext.getString(android.R.string.cancel), null).create().show();
+			                
 			                return true;
 			            }
 					 }
@@ -724,7 +733,7 @@ public class AlbumBrowserActivity extends ListFragment
 		}
         @Override
         public void changeCursor(Cursor cursor) {
-            if (mActivity.isAdded() && !mActivity.isDetached() && cursor != null) {
+            if (!mActivity.isAdded() || mActivity.isDetached() && cursor != null) {
                 cursor.close();
                 cursor = null;
             }

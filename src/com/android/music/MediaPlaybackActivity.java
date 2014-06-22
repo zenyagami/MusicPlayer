@@ -430,7 +430,8 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
         public void onClick(View v) {
             if (mService == null) return;
             try {
-                if (mService.position() < 2000) {
+            	long position = mService.position();
+                if (position < 2000) {
                     mService.prev();
                 } else {
                     mService.seek(0);
@@ -525,8 +526,7 @@ public class MediaPlaybackActivity extends Activity implements MusicUtils.Defs,
         if (MusicUtils.getCurrentAudioId() >= 0) {
             menu.add(0, GOTO_START, 0, R.string.goto_start).setIcon(R.drawable.ic_menu_music_library);
             menu.add(0, PARTY_SHUFFLE, 0, R.string.party_shuffle); // icon will be set in onPrepareOptionsMenu()
-            SubMenu sub = menu.addSubMenu(0, ADD_TO_PLAYLIST, 0,
-                    R.string.add_to_playlist).setIcon(android.R.drawable.ic_menu_add);
+            menu.addSubMenu(0, ADD_TO_PLAYLIST, 0,R.string.add_to_playlist).setIcon(android.R.drawable.ic_menu_add);
             // these next two are in a separate group, so they can be shown/hidden as needed
             // based on the keyguard state
             menu.add(1, USE_AS_RINGTONE, 0, R.string.ringtone_menu_short)

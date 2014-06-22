@@ -23,7 +23,7 @@
     <original-package android:name="com.android.music" />
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="16"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -154,18 +154,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.music.TrackBrowserActivity"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="android.intent.action.EDIT" />
-                <action android:name="android.intent.action.PICK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/track" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="com.android.music.QueryBrowserActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar" >
@@ -179,60 +167,6 @@
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
-        </activity>
-        <activity
-            android:name="com.android.music.PlaylistBrowserActivity"
-            android:exported="true"
-            android:label="@string/musicbrowserlabel" >
-            <intent-filter>
-                <action android:name="android.intent.action.PICK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/playlist" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/playlist" />
-            </intent-filter>
-        </activity>
-
-        <activity-alias
-            android:name="com.android.music.PlaylistShortcutActivity"
-            android:exported="true"
-            android:icon="@drawable/ic_launcher_shortcut_music_playlist"
-            android:label="@string/musicshortcutlabel"
-            android:targetActivity="com.android.music.PlaylistBrowserActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity
-            android:name="com.android.music.VideoBrowserActivity"
-            android:exported="false"
-            android:icon="@drawable/app_video"
-            android:label="@string/videobrowserlabel"
-            android:taskAffinity="android.task.video" >
-            <intent-filter>
-                <action android:name="android.intent.action.PICK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/video" />
-            </intent-filter>
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
         </activity>
         <activity
             android:name="com.android.music.MediaPickerActivity"
