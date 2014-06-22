@@ -110,9 +110,8 @@ public class AlbumBrowserActivity extends ListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       ListView lv = getListView();
-      lv.setOnCreateContextMenuListener(this);
+      //lv.setOnCreateContextMenuListener(this);
       lv.setTextFilterEnabled(true);
-     // mAdapter = (AlbumListAdapter) getLastNonConfigurationInstance();
       mAlbumCursor = getAlbumCursor(null, null);
       if (mAdapter == null) {
           //Log.i("@@@", "starting query");

@@ -345,6 +345,7 @@ public class PlaylistBrowserActivity extends ListFragment
             //String playlistName = (String) v.getTag();
             b.putBoolean("showTitle", true);
             b.putBoolean("showAlbum", true);
+            b.putBoolean(Intent.ACTION_EDIT, true);
             b.putString("fragment", TrackBrowserActivity.class.getName());
             intent.putExtras(b);
             startActivity(intent);

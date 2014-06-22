@@ -34,7 +34,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.AbstractCursor;
-import android.database.CharArrayBuffer;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -55,21 +54,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AlphabetIndexer;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.SectionIndexer;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import java.util.Arrays;
 
 public class TrackBrowserActivity extends ListFragment
-        implements View.OnCreateContextMenuListener, MusicUtils.Defs, ServiceConnection
+        implements MusicUtils.Defs, ServiceConnection
 {
    // private static final int Q_SELECTED = CHILD_MENU_BASE;
     //private static final int Q_ALL = CHILD_MENU_BASE + 1;
@@ -207,12 +209,12 @@ public class TrackBrowserActivity extends ListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       mTrackList = getListView();
-      mTrackList.setOnCreateContextMenuListener(this);
+      //mTrackList.setOnCreateContextMenuListener(this);
       mTrackList.setCacheColorHint(0);
       if (mEditMode) {
-          ((TouchInterceptor) mTrackList).setDropListener(mDropListener);
+          /*((TouchInterceptor) mTrackList).setDropListener(mDropListener);
           ((TouchInterceptor) mTrackList).setRemoveListener(mRemoveListener);
-          mTrackList.setDivider(null);
+          mTrackList.setDivider(null)*/
          // mTrackList.setSelector(R.drawable.list_selector_background);
       } else {
           mTrackList.setTextFilterEnabled(true);
@@ -250,7 +252,7 @@ public class TrackBrowserActivity extends ListFragment
             mAdapter = new TrackListAdapter(
             		getActivity().getApplication(), // need to use application context to avoid leaks
                     this,
-                    mEditMode ? R.layout.edit_track_list_item : R.layout.single_music_row,
+                    mEditMode ? R.layout.single_music_row : R.layout.single_music_row,
                     null, // cursor
                     new String[] {},
                     new int[] {},
@@ -706,7 +708,7 @@ public class TrackBrowserActivity extends ListFragment
         return ismusic;
     }
 
-    @Override
+  /*  @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfoIn) {
         menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
         SubMenu sub = menu.addSubMenu(0, ADD_TO_PLAYLIST, 0, R.string.add_to_playlist);
@@ -737,7 +739,7 @@ public class TrackBrowserActivity extends ListFragment
         mCurrentTrackName = mTrackCursor.getString(mTrackCursor.getColumnIndexOrThrow(
                 MediaStore.Audio.Media.TITLE));
         menu.setHeaderTitle(mCurrentTrackName);
-    }
+    }*/
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -796,6 +798,7 @@ public class TrackBrowserActivity extends ListFragment
             
             case REMOVE:
                 removePlaylistItem(mSelectedPosition);
+              //  getTrackCursor(mAdapter.mQueryHandler, null, true);
                 return true;
                 
             case SEARCH:
@@ -1399,7 +1402,7 @@ public class TrackBrowserActivity extends ListFragment
         int mAudioIdIdx;
         int mAlbumId;
 
-        private final StringBuilder mBuilder = new StringBuilder();
+        //private final StringBuilder mBuilder = new StringBuilder();
         private final String mUnknownArtist;
       //  private final String mUnknownAlbum;
         
@@ -1417,9 +1420,14 @@ public class TrackBrowserActivity extends ListFragment
             TextView line2;
             //TextView duration;
             ImageView icon;
+            ImageView overflow;
             ImageView play_indicator;
-            CharArrayBuffer buffer1;
-            char [] buffer2;
+        }
+        private class PopUpHolder
+        {
+        	String trackName;
+        	int position;
+        	long  id;
         }
 
         class TrackQueryHandler extends AsyncQueryHandler {
@@ -1541,10 +1549,11 @@ public class TrackBrowserActivity extends ListFragment
             vh.icon = (ImageView)v.findViewById(R.id.imgAlbumArt);
             vh.line1 = (TextView) v.findViewById(R.id.playlistTitle);
             vh.line2 = (TextView) v.findViewById(R.id.playlistArtista);
+            vh.overflow = (ImageView)v.findViewById(R.id.btnOverFlowMenu);
            // vh.duration = (TextView) v.findViewById(R.id.duration);
             vh.play_indicator = (ImageView) v.findViewById(R.id.play_indicator);
-            vh.buffer1 = new CharArrayBuffer(100);
-            vh.buffer2 = new char[200];
+           // vh.buffer1 = new CharArrayBuffer(100);
+            //vh.buffer2 = new char[200];
             v.setTag(vh);
             return v;
         }
@@ -1552,32 +1561,17 @@ public class TrackBrowserActivity extends ListFragment
         public void bindView(View view, Context context, Cursor cursor) {
             
             ViewHolder vh = (ViewHolder) view.getTag();
-            cursor.copyStringToBuffer(mTitleIdx, vh.buffer1);
-            vh.line1.setText(vh.buffer1.data, 0, vh.buffer1.sizeCopied);
-            
-          /*  int secs = cursor.getInt(mDurationIdx) / 1000;
-           if (secs == 0) {
-                vh.duration.setText("");
-            } else {
-                vh.duration.setText(MusicUtils.makeTimeString(context, secs));
-            }*/
-            
-            final StringBuilder builder = mBuilder;
-            builder.delete(0, builder.length());
-
-            String name = cursor.getString(mArtistIdx);
-            if (name == null || name.equals(MediaStore.UNKNOWN_STRING)) {
-                builder.append(mUnknownArtist);
-            } else {
-                builder.append(name);
+            String artistName = cursor.getString(mArtistIdx);
+            if (artistName == null || artistName.equals(MediaStore.UNKNOWN_STRING)) {
+            	artistName =mUnknownArtist;
+            } 
+            vh.line2.setText(artistName);
+            String title = cursor.getString(mTitleIdx);
+            if(title==null || title.equals(MediaStore.UNKNOWN_STRING))
+            {
+            	title =mUnknownArtist;
             }
-            int len = builder.length();
-            if (vh.buffer2.length < len) {
-                vh.buffer2 = new char[len];
-            }
-            builder.getChars(0, len, vh.buffer2, 0);
-            vh.line2.setText(vh.buffer2, 0, len);
-            
+            vh.line1.setText(title);
             ImageView iv = vh.play_indicator;
             long id = -1;
             if (MusicUtils.sService != null) {
@@ -1619,10 +1613,108 @@ public class TrackBrowserActivity extends ListFragment
             } else {
                 iv.setVisibility(View.GONE);
             }
-            
+            PopUpHolder holder = new PopUpHolder();
+            holder.trackName = title;
+            holder.id = cursor.getLong(mAudioIdIdx);
+            holder.position=cursor.getPosition();
+            vh.overflow.setTag(holder);
+            vh.overflow.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					showPopup(v);
+				}
+			});
             
         }
-        
+      public void showPopup(View v) {
+			final PopUpHolder holder = (PopUpHolder) v.getTag();
+		    PopupMenu popup = new PopupMenu(context, v);
+		    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					mSelectedPosition = holder.position;
+					mSelectedId = holder.id;
+					mCurrentTrackName = holder.trackName;
+					
+					 switch (item.getItemId()) {
+			            case PLAY_SELECTION: {
+			                // play the track
+			                int position = mSelectedPosition;
+			                MusicUtils.playAll(getActivity(), mTrackCursor, position);
+			                return true;
+			            }
+
+			            case QUEUE: {
+			                long [] list = new long[] { mSelectedId };
+			                MusicUtils.addToCurrentPlaylist(getActivity(), list);
+			                return true;
+			            }
+
+			            case NEW_PLAYLIST: {
+			                Intent intent = new Intent();
+			                intent.setClass(getActivity(), CreatePlaylist.class);
+			                startActivityForResult(intent, NEW_PLAYLIST);
+			                return true;
+			            }
+
+			            case PLAYLIST_SELECTED: {
+			                long [] list = new long[] { mSelectedId };
+			                long playlist = item.getIntent().getLongExtra("playlist", 0);
+			                MusicUtils.addToPlaylist(getActivity(), list, playlist);
+			                return true;
+			            }
+
+			            case USE_AS_RINGTONE:
+			                // Set the system setting to make this the current ringtone
+			                MusicUtils.setRingtone(getActivity(), mSelectedId);
+			                return true;
+
+			            case DELETE_ITEM: {
+			                long [] list = new long[1];
+			                list[0] = (int) mSelectedId;
+			                Bundle b = new Bundle();
+			                String f;
+			                if (android.os.Environment.isExternalStorageRemovable()) {
+			                    f = getString(R.string.delete_song_desc); 
+			                } else {
+			                    f = getString(R.string.delete_song_desc_nosdcard); 
+			                }
+			                String desc = String.format(f, mCurrentTrackName);
+			                b.putString("description", desc);
+			                b.putLongArray("items", list);
+			                Intent intent = new Intent();
+			                intent.setClass(getActivity(), DeleteItems.class);
+			                intent.putExtras(b);
+			                startActivityForResult(intent, -1);
+			                return true;
+			            }
+			            
+			            case REMOVE:
+			                removePlaylistItem(mSelectedPosition);
+			                getTrackCursor(mQueryHandler, null, true);
+			                return true;
+			                
+			            case SEARCH:
+			                doSearch();
+			                return true;
+			        }
+					 return false;
+			            
+			}});
+		    Menu menu = popup.getMenu();
+		    
+		    menu.add(0, PLAY_SELECTION, 0, R.string.play_selection);
+	        SubMenu sub = menu.addSubMenu(0, ADD_TO_PLAYLIST, 0, R.string.add_to_playlist);
+	        MusicUtils.makePlaylistMenu(getActivity(), sub);
+	        if (mEditMode) {
+	            menu.add(0, REMOVE, 0, R.string.remove_from_playlist);
+	        }
+	        menu.add(0, USE_AS_RINGTONE, 0, R.string.ringtone_menu);
+	        menu.add(0, DELETE_ITEM, 0, R.string.delete_item);
+		    popup.show();
+		}
         @Override
         public void changeCursor(Cursor cursor) {
             if (mActivity.isDetached() || !mActivity.isAdded() && cursor != null) {

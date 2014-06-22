@@ -80,7 +80,7 @@ public class TouchInterceptor extends ListView {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         Resources res = getResources();
         mItemHeightNormal = res.getDimensionPixelSize(R.dimen.normal_height);
-        mItemHeightHalf = mItemHeightNormal / 2;
+        mItemHeightHalf = mItemHeightNormal;
         mItemHeightExpanded = res.getDimensionPixelSize(R.dimen.expanded_height);
     }
     
