@@ -101,7 +101,7 @@ public class PlaylistBrowserActivity extends ListFragment
         mToken = MusicUtils.bindToService(getActivity(), new ServiceConnection() {
             public void onServiceConnected(ComponentName classname, IBinder obj) {
                 if (Intent.ACTION_VIEW.equals("action")) {
-                    Bundle b = null;//intent.getExtras();
+                  //  Bundle b = null;//intent.getExtras();
                     /*if (b == null) {
                         Log.w(TAG, "Unexpected:getExtras() returns null.");
                     } else {
@@ -228,7 +228,6 @@ public class PlaylistBrowserActivity extends ListFragment
     @Override
     public void onResume() {
         super.onResume();
-
         MusicUtils.setSpinnerState(getActivity());
         MusicUtils.updateNowPlaying(getActivity());
     }
@@ -343,8 +342,9 @@ public class PlaylistBrowserActivity extends ListFragment
         	Intent intent = new Intent(getActivity(),MusicBrowser.class);
             Bundle b = new Bundle();
             b.putString("playlist", id==RECENTLY_ADDED_PLAYLIST? "recentlyadded": Long.valueOf(id).toString());
-            b.putBoolean(Intent.ACTION_EDIT, true);
-            b.putBoolean("showAlbum", false);
+            //String playlistName = (String) v.getTag();
+            b.putBoolean("showTitle", true);
+            b.putBoolean("showAlbum", true);
             b.putString("fragment", TrackBrowserActivity.class.getName());
             intent.putExtras(b);
             startActivity(intent);
@@ -574,7 +574,7 @@ public class PlaylistBrowserActivity extends ListFragment
             
             String name = cursor.getString(mTitleIdx);
             tv.setText(name);
-            
+            view.setTag(name);
             long id = cursor.getLong(mIdIdx);
             
             ImageView iv = (ImageView) view.findViewById(R.id.imgPlaylistIcon);

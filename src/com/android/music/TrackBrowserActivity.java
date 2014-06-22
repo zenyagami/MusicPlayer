@@ -97,6 +97,7 @@ public class TrackBrowserActivity extends ListFragment
     private String mArtistId;
     private String mPlaylist;
     private String mGenre;
+    private boolean showTitle=false;
     private String mSortOrder;
     private int mSelectedPosition;
     private long mSelectedId;
@@ -155,6 +156,9 @@ public class TrackBrowserActivity extends ListFragment
         		}if(ext.containsKey("showAlbum"))
         		{
         			mShowAlbum =ext.getBoolean("showAlbum");
+        		}if(ext.containsKey("showTitle"))
+        		{
+        			showTitle = ext.getBoolean("showTitle");
         		}
         	}
             /*mAlbumId = intent.getStringExtra("album");
@@ -186,6 +190,7 @@ public class TrackBrowserActivity extends ListFragment
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Playlists.Members.PLAY_ORDER,
                 MediaStore.Audio.Playlists.Members.AUDIO_ID,
+                MediaStore.Audio.Playlists.Members.ALBUM_ID,
                 MediaStore.Audio.Media.IS_MUSIC
         };
        
@@ -208,7 +213,7 @@ public class TrackBrowserActivity extends ListFragment
           ((TouchInterceptor) mTrackList).setDropListener(mDropListener);
           ((TouchInterceptor) mTrackList).setRemoveListener(mRemoveListener);
           mTrackList.setDivider(null);
-          mTrackList.setSelector(R.drawable.list_selector_background);
+         // mTrackList.setSelector(R.drawable.list_selector_background);
       } else {
           mTrackList.setTextFilterEnabled(true);
       }
@@ -496,7 +501,7 @@ public class TrackBrowserActivity extends ListFragment
     private void setTitle() {
 
         CharSequence fancyName = null;
-        if (mAlbumId != null) {
+        if (mAlbumId != null && showTitle) {
             int numresults = mTrackCursor != null ? mTrackCursor.getCount() : 0;
             if (numresults > 0) {
                 mTrackCursor.moveToFirst();
@@ -1505,14 +1510,16 @@ public class TrackBrowserActivity extends ListFragment
                 mTitleIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
                 mArtistIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
               //  mDurationIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
-                mAlbumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
+               try {
+            	   mAlbumId = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
+			} catch (Exception e) {
+			}
                 try {
                     mAudioIdIdx = cursor.getColumnIndexOrThrow(
                             MediaStore.Audio.Playlists.Members.AUDIO_ID);
                 } catch (IllegalArgumentException ex) {
                     mAudioIdIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
                 }
-                
                 if (mIndexer != null) {
                     mIndexer.setCursor(cursor);
                 } else if (!mActivity.mEditMode && mActivity.mAlbumId == null) {
@@ -1592,7 +1599,7 @@ public class TrackBrowserActivity extends ListFragment
             	 long aid = cursor.getLong(mAlbumId);
                  imageLoader.displayImage ("content://media/external/audio/albumart/"+ aid, vh.icon,options);
             }
-           
+            
             
             // Determining whether and where to show the "now playing indicator
             // is tricky, because we don't actually keep track of where the songs

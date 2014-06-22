@@ -53,8 +53,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.Window;
-import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -857,8 +855,8 @@ public class MusicUtils {
         }
     }
     
-    private static int sArtId = -2;
-    private static Bitmap mCachedBit = null;
+   // private static int sArtId = -2;
+   // private static Bitmap mCachedBit = null;
     private static final BitmapFactory.Options sBitmapOptionsCache = new BitmapFactory.Options();
     private static final BitmapFactory.Options sBitmapOptions = new BitmapFactory.Options();
     private static final Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
@@ -1044,11 +1042,11 @@ public class MusicUtils {
     }
     
     // get album art for specified file
-    private static final String sExternalMediaUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString();
+   // private static final String sExternalMediaUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString();
     private static Bitmap getArtworkFromFile(Context context, long songid, long albumid) {
         Bitmap bm = null;
-        byte [] art = null;
-        String path = null;
+        //byte [] art = null;
+        //String path = null;
 
         if (albumid < 0 && songid < 0) {
             throw new IllegalArgumentException("Must specify an album or a song id");
@@ -1073,9 +1071,9 @@ public class MusicUtils {
         } catch (IllegalStateException ex) {
         } catch (FileNotFoundException ex) {
         }
-        if (bm != null) {
+      /*  if (bm != null) {
             mCachedBit = bm;
-        }
+        }*/
         return bm;
     }
     
@@ -1141,107 +1139,17 @@ public class MusicUtils {
     
     static int sActiveTabIndex = -1;
     
-   /* static boolean updateButtonBar(Activity a, int highlight) {
-        final TabWidget ll = (TabWidget) a.findViewById(R.id.buttonbar);
-        boolean withtabs = false;
-        Intent intent = a.getIntent();
-        if (intent != null) {
-            withtabs = intent.getBooleanExtra("withtabs", false);
-        }
-        
-        if (highlight == 0 || !withtabs) {
-            ll.setVisibility(View.GONE);
-            return withtabs;
-        } else if (withtabs) {
-            ll.setVisibility(View.VISIBLE);
-        }
-        for (int i = ll.getChildCount() - 1; i >= 0; i--) {
-            
-            View v = ll.getChildAt(i);
-            boolean isActive = (v.getId() == highlight);
-            if (isActive) {
-                ll.setCurrentTab(i);
-                sActiveTabIndex = i;
-            }
-            v.setTag(i);
-            v.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (hasFocus) {
-                        for (int i = 0; i < ll.getTabCount(); i++) {
-                            if (ll.getChildTabViewAt(i) == v) {
-                                ll.setCurrentTab(i);
-                                processTabClick((Activity)ll.getContext(), v, ll.getChildAt(sActiveTabIndex).getId());
-                                break;
-                            }
-                        }
-                    }
-                }});
-            
-            v.setOnClickListener(new View.OnClickListener() {
-
-                public void onClick(View v) {
-                    processTabClick((Activity)ll.getContext(), v, ll.getChildAt(sActiveTabIndex).getId());
-                }});
-        }
-        return withtabs;
-    }*/
-
-    /*static void processTabClick(Activity a, View v, int current) {
-        int id = v.getId();
-        if (id == current) {
-            return;
-        }
-
-        final TabWidget ll = (TabWidget) a.findViewById(R.id.buttonbar);
-
-        activateTab(a, id);
-        if (id != R.id.nowplayingtab) {
-            ll.setCurrentTab((Integer) v.getTag());
-            setIntPref(a, "activetab", id);
-        }
-    }*/
-    
-   /* static void activateTab(Activity a, int id) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        switch (id) {
-            case R.id.artisttab:
-                intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/artistalbum");
-                break;
-            case R.id.albumtab:
-                intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/album");
-                break;
-            case R.id.songtab:
-                intent.setDataAndType(Uri.EMPTY, "vnd.android.cursor.dir/track");
-                break;
-            case R.id.playlisttab:
-                intent.setDataAndType(Uri.EMPTY, MediaStore.Audio.Playlists.CONTENT_TYPE);
-                break;
-            case R.id.nowplayingtab:
-                intent = new Intent(a, MediaPlaybackActivity.class);
-                a.startActivity(intent);
-                // fall through and return
-            default:
-                return;
-        }
-        intent.putExtra("withtabs", true);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        a.startActivity(intent);
-        a.finish();
-        a.overridePendingTransition(0, 0);
-    }*/
-    
     static void updateNowPlaying(Activity a) {
         View nowPlayingView = a.findViewById(R.id.nowplaying);
         if (nowPlayingView == null) {
             return;
         }
         try {
-            boolean withtabs = false;
-            Intent intent = a.getIntent();
-            if (intent != null) {
+           // boolean withtabs = false;
+            //Intent intent = a.getIntent();
+            /*if (intent != null) {
                 withtabs = intent.getBooleanExtra("withtabs", false);
-            }
+            }*/
             if (true && MusicUtils.sService != null && MusicUtils.sService.getAudioId() != -1) {
                 TextView title = (TextView) nowPlayingView.findViewById(R.id.title);
                 TextView artist = (TextView) nowPlayingView.findViewById(R.id.artist);
