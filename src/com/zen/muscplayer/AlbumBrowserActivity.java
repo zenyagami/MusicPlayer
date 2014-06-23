@@ -258,10 +258,10 @@ public class AlbumBrowserActivity extends ListFragment
 
         MusicUtils.hideDatabaseError(getActivity());
         //MusicUtils.updateButtonBar(getActivity(), R.id.albumtab);
-        setTitle();
+       // setTitle();
     }
 
-    private void setTitle() {
+    /*private void setTitle() {
         CharSequence fancyName = "";
         if (mAlbumCursor != null && mAlbumCursor.getCount() > 0) {
             mAlbumCursor.moveToFirst();
@@ -275,7 +275,7 @@ public class AlbumBrowserActivity extends ListFragment
         	getActivity().setTitle(fancyName);
         else
         	getActivity(). setTitle(R.string.albums_title);
-    }
+    }*/
 
     /*@Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfoIn) {

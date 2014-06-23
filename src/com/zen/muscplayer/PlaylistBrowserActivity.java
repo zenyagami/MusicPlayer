@@ -280,12 +280,12 @@ public class PlaylistBrowserActivity extends ListFragment
         }
         MusicUtils.hideDatabaseError(getActivity());
      //   MusicUtils.updateButtonBar(getActivity(), R.id.playlisttab);
-        setTitle();
+       // setTitle();
     }
 
-    private void setTitle() {
+    /*private void setTitle() {
     	getActivity().setTitle(R.string.playlists_title);
-    }
+    }*/
     
     @Override
   	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
