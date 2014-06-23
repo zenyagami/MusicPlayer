@@ -82,7 +82,13 @@ public class PlaylistBrowserActivity extends ListFragment
     public PlaylistBrowserActivity()
     {
     }
-
+    public void updateAdatper()
+    {
+    	if(mAdapter!=null)
+    	{
+    		getPlaylistCursor(mAdapter.getQueryHandler(), null);
+    	}
+    }
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle icicle)
@@ -229,6 +235,7 @@ public class PlaylistBrowserActivity extends ListFragment
     public void onResume() {
         super.onResume();
         MusicUtils.setSpinnerState(getActivity());
+        updateAdatper();
         MusicUtils.updateNowPlaying(getActivity());
     }
     @Override

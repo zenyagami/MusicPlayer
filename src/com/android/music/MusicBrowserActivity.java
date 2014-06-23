@@ -16,10 +16,10 @@
 
 package com.android.music;
 
+
 import com.android.music.MusicUtils.ServiceToken;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -28,13 +28,14 @@ import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.SparseArray;
 import android.view.Window;
 
 public class MusicBrowserActivity extends FragmentActivity
-    implements MusicUtils.Defs {
+    implements MusicUtils.Defs, OnPageChangeListener {
 
     private ServiceToken mToken;
     private ViewPager mPager;
@@ -52,13 +53,19 @@ public class MusicBrowserActivity extends FragmentActivity
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         String shuf = getIntent().getStringExtra("autoshuffle");
         if ("true".equals(shuf)) {
-           // mToken = MusicUtils.bindToService(this, autoshuffle);
+            mToken = MusicUtils.bindToService(this, autoshuffle);
         }
         setContentView(R.layout.main_activity_pager);
         mPager = (ViewPager) findViewById(R.id.pager);
-        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPagerAdapter = new PagerAdapter(getSupportFragmentManager(),3);
+        mPagerAdapter.addFragment(new AlbumBrowserActivity(),R.string.albums_title);
+        mPagerAdapter.addFragment(new TrackBrowserActivity(),R.string.tracks_title);
+        mPagerAdapter.addFragment(new PlaylistBrowserActivity(),R.string.playlists_title);
+        
         mPager.setOffscreenPageLimit(3);
+        mPager.setOnPageChangeListener(this);
         mPager.setAdapter(mPagerAdapter);
+        
         
     }
 
@@ -89,58 +96,64 @@ public class MusicBrowserActivity extends FragmentActivity
         public void onServiceDisconnected(ComponentName classname) {
         }
     };
-    
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
-    	private static final int PAGES =3;
-        public ScreenSlidePagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
+    public class PagerAdapter extends FragmentPagerAdapter {
 
-        @Override
+		private final SparseArray<Fragment> mFragments= new SparseArray<Fragment>();
+		private int cont=0;
+		private SparseArray<String> titles = new SparseArray<String>();
+
+
+		// private int NUM_PAGES =0;
+		public PagerAdapter(FragmentManager manager, int num_pages) {
+			super(manager);
+			// this.NUM_PAGES = num_pages;
+		}
+
+		public void addFragment(Fragment fragment,int resourceId) {
+			mFragments.put(cont, fragment);
+			titles.put(cont, getString(resourceId));
+			cont++;
+			// titulos.add(title);
+			notifyDataSetChanged();
+		}
+		@Override
 		public CharSequence getPageTitle(int position) {
-        	int id=0;
-			switch (position) {
-			/*case 0:
-				id = R.string.artists_title;
-				break;*/
-			case 0:
-				id = R.string.albums_title;
-				break;
-			case 1: 
-				id=R.string.tracks_title;
-				break;
-			case 2:
-				id = R.string.playlists_title;
-				break;
-			default:
-				id=R.string.tracks_title;
-				break;
-			}
-			return getString(id);
+			return titles.get(position);
 		}
 
 		@Override
-        public Fragment getItem(int position) {
-        	switch (position) {
-			/*case 0:
-				return new ArtistAlbumBrowserActivity();*/
-			case 0:
-				return new AlbumBrowserActivity();
-			case 1:
-				return new TrackBrowserActivity();
-			case 2:
-				return new PlaylistBrowserActivity();
-			default:
-				break;
-			}
-        	return new TrackBrowserActivity();
-        }
+		public int getCount() {
+			// return NUM_PAGES;
+			return mFragments.size();
+		}
+		
+		@Override
+		public Fragment getItem(int position) {
+			return mFragments.get(position);
+		}
 
-        @Override
-        public int getCount() {
-            return PAGES;
-        }
-    }
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageScrolled(int arg0, float arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageSelected(int arg0) {
+		Fragment f = mPagerAdapter.getItem(arg0);
+		if(f!=null && f instanceof PlaylistBrowserActivity)
+		{
+			((PlaylistBrowserActivity)f).updateAdatper();
+		}
+	}
 
 }
 
