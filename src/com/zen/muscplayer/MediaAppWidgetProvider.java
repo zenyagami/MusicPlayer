@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.music;
+package com.zen.muscplayer;
+
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

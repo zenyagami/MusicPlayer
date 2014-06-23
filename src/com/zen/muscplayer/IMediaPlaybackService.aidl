@@ -15,7 +15,7 @@
 ** limitations under the License.
 */
 
-package com.android.music;
+package com.zen.muscplayer;
 
 import android.graphics.Bitmap;
 

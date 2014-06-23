@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.music;
+package com.zen.muscplayer;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -66,6 +66,8 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
+
+import com.zen.muscplayer.IMediaPlaybackService;
 
 public class MusicUtils {
 

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.music;
+package com.zen.muscplayer;
 
-import com.android.music.MusicUtils.ServiceToken;
+import com.zen.muscplayer.IMediaPlaybackService;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.zen.muscplayer.MusicUtils.ServiceToken;
 
 import android.app.Activity;
 import android.app.AlertDialog;

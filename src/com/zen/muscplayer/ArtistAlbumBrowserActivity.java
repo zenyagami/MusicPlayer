@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.music;
+package com.zen.muscplayer;
 
-import com.android.music.MusicUtils.ServiceToken;
+import com.zen.muscplayer.MusicUtils.ServiceToken;
 
 import android.app.Activity;
 import android.app.SearchManager;

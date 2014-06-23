@@ -1,4 +1,4 @@
-package com.android.music;
+package com.zen.muscplayer;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

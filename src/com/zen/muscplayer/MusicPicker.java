@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.music;
+package com.zen.muscplayer;
 
 import android.app.ListActivity;
 import android.content.AsyncQueryHandler;
@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.text.Collator;
 import java.util.Formatter;
 import java.util.Locale;
+
 
 /**
  * Activity allowing the user to select a music track on the device, and

@@ -15,10 +15,10 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.music"
+    package="com.zen.muscplayer"
     android:installLocation="auto"
     android:versionCode="1"
-    android:versionName="Snapshot" >
+    android:versionName="Snapshot-Beta" >
 
     <original-package android:name="com.android.music" />
 
@@ -37,7 +37,7 @@
     <application
         android:allowBackup="true"
         android:allowTaskReparenting="true"
-        android:icon="@drawable/app_music"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/musicbrowserlabel"
         android:taskAffinity="android.task.music" >
         <meta-data
@@ -45,7 +45,7 @@
             android:value="com.android.music.QueryBrowserActivity" />
 
         <activity
-            android:name="com.android.music.MusicBrowserActivity"
+            android:name="com.zen.muscplayer.MusicBrowserActivity"
             android:exported="true"
             android:configChanges="screenSize|orientation"
             android:theme="@android:style/Theme.Holo" >
@@ -55,13 +55,13 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.android.music.MediaButtonIntentReceiver" >
+        <receiver android:name="com.zen.muscplayer.MediaButtonIntentReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
-        <activity android:name=".MusicBrowser" android:theme="@android:style/Theme.Holo" android:configChanges="screenSize|orientation"/>
+        <activity android:name="com.zen.muscplayer.MusicBrowser" android:theme="@android:style/Theme.Holo" android:configChanges="screenSize|orientation"/>
         <!--
              This is the "current music playing" panel, which has special
              launch behavior.  We clear its task affinity, so it will not
@@ -76,7 +76,7 @@
              appropriate.
         -->
         <activity
-            android:name="com.android.music.MediaPlaybackActivity"
+            android:name="com.zen.muscplayer.MediaPlaybackActivity"
             android:clearTaskOnLaunch="true"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -145,7 +145,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.music.NowPlayingActivity"
+            android:name="com.zen.muscplayer.NowPlayingActivity"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.PICK" />
@@ -154,7 +154,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.music.QueryBrowserActivity"
+            android:name="com.zen.muscplayer.QueryBrowserActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar" >
             <intent-filter>
@@ -169,13 +169,13 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name="com.android.music.MediaPickerActivity"
+            android:name="com.zen.muscplayer.MediaPickerActivity"
             android:exported="false"
             android:label="@string/mediapickerlabel" >
         </activity>
-        <activity android:name=".TestT"/>
+        <activity android:name="com.zen.muscplayer.TestT"/>
         <activity
-            android:name="com.android.music.MusicPicker"
+            android:name="com.zen.muscplayer.MusicPicker"
             android:exported="true"
             android:label="@string/music_picker_title" >
 
@@ -207,28 +207,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.music.CreatePlaylist"
+            android:name="com.zen.muscplayer.CreatePlaylist"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Dialog" />
         <activity
-            android:name="com.android.music.RenamePlaylist"
+            android:name="com.zen.muscplayer.RenamePlaylist"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Dialog" />
         
         <activity
-            android:name="com.android.music.DeleteItems"
+            android:name="com.zen.muscplayer.DeleteItems"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Dialog" />
         <activity
-            android:name="com.android.music.ScanningProgress"
+            android:name="com.zen.muscplayer.ScanningProgress"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Dialog" />
 
         <service
-            android:name="com.android.music.MediaPlaybackService"
+            android:name="com.zen.muscplayer.MediaPlaybackService"
             android:exported="false" />
 
-        <receiver android:name="com.android.music.MediaAppWidgetProvider" >
+        <receiver android:name="com.zen.muscplayer.MediaAppWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
