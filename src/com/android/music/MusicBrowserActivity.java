@@ -19,6 +19,7 @@ package com.android.music;
 import com.android.music.MusicUtils.ServiceToken;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -51,14 +52,13 @@ public class MusicBrowserActivity extends FragmentActivity
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         String shuf = getIntent().getStringExtra("autoshuffle");
         if ("true".equals(shuf)) {
-            mToken = MusicUtils.bindToService(this, autoshuffle);
+           // mToken = MusicUtils.bindToService(this, autoshuffle);
         }
         setContentView(R.layout.main_activity_pager);
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setOffscreenPageLimit(3);
         mPager.setAdapter(mPagerAdapter);
-        
         
     }
 

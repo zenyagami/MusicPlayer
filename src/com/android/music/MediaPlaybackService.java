@@ -121,6 +121,7 @@ public class MediaPlaybackService extends Service {
     private Cursor mCursor;
     private int mPlayPos = -1;
     private int mNextPlayPos = -1;
+    private int mLast;
     private static final String LOGTAG = "MediaPlaybackService";
     private final Shuffler mRand = new Shuffler();
     private int mOpenFailedCounter = 0;
@@ -1302,7 +1303,15 @@ public class MediaPlaybackService extends Service {
                     return;
                 }
                 Integer pos = mHistory.remove(histsize - 1);
+                if(pos==mPlayPos)
+                {
+                	try {
+                		pos = mHistory.remove(mHistory.size()-1);
+					} catch (Exception e) {
+					}
+                }
                 mPlayPos = pos.intValue();
+                mLast =mPlayPos;
             } else {
                 if (mPlayPos > 0) {
                     mPlayPos--;
@@ -1335,7 +1344,24 @@ public class MediaPlaybackService extends Service {
             // Store the current file in the history, but keep the history at a
             // reasonable size
             if (mPlayPos >= 0) {
-                mHistory.add(mPlayPos);
+            	try {
+            		if(mHistory.size()>0)
+            		{
+            			int val =mHistory.get(mHistory.size()-1);
+            			if(val!=mPlayPos)
+            			{
+            				mHistory.add(mPlayPos);
+            			}
+            		}else
+            		{
+            			mHistory.add(mPlayPos);
+            		}
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+               
             }
             if (mHistory.size() > MAX_HISTORY_SIZE) {
                 mHistory.removeElementAt(0);
@@ -1376,7 +1402,7 @@ public class MediaPlaybackService extends Service {
             int skip = mRand.nextInt(numUnplayed);
             int cnt = -1;
             while (true) {
-                while (tracks[++cnt] < 0)
+                 while (tracks[++cnt] < 0)
                     ;
                 skip--;
                 if (skip < 0) {
@@ -1419,10 +1445,11 @@ public class MediaPlaybackService extends Service {
                 }
                 return;
             }
+            mLast=mPlayPos;
             mPlayPos = pos;
             saveBookmarkIfNeeded();
             stop(false);
-            mPlayPos = pos;
+            //mPlayPos = pos;
             openCurrentAndNext();
             play();
             notifyChange(META_CHANGED);

@@ -173,6 +173,7 @@
             android:exported="false"
             android:label="@string/mediapickerlabel" >
         </activity>
+        <activity android:name=".TestT"/>
         <activity
             android:name="com.android.music.MusicPicker"
             android:exported="true"
